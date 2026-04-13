@@ -1,0 +1,227 @@
+export const presentationData = {
+  title: "Interactive Strategy Insights",
+  logo: "https://ucarecdn.com/a649594f-cb6f-4484-b5b2-ccb27033143e/-/format/auto/",
+  goal: "Align on our strategic direction for 2026 and beyond.",
+  metrics: [
+    { label: "Respondents", value: "124" },
+    { label: "Themes Identified", value: "6" },
+    { label: "Messages sent", value: "482" },
+  ],
+  questions: [
+    {
+      id: "q1",
+      text: "What do you believe is the single biggest opportunity for our company in the next 3 years?",
+    },
+    {
+      id: "q2",
+      text: "If we changed one thing about how we communicate our strategy, what should it be?",
+    },
+  ],
+  quotes: [
+    {
+      id: 1,
+      text: "We need more clarity on the 'why' behind our decisions, not just the 'what'.",
+      color: "lavender",
+    },
+    {
+      id: 2,
+      text: "The cross-departmental collaboration is our superpower, but we don't use it enough.",
+      color: "blue",
+    },
+    {
+      id: 3,
+      text: "Communication feels like it's happening in silos. We need a central source of truth.",
+      color: "sage",
+    },
+    {
+      id: 4,
+      text: "I feel like we're moving fast, but I'm not always sure we're moving in the right direction.",
+      color: "peach",
+    },
+    {
+      id: 5,
+      text: "The feedback loops are too slow. By the time we react, the market has moved.",
+      color: "butter",
+    },
+    {
+      id: 6,
+      text: "Our values are strong, but they don't always translate to daily workflows.",
+      color: "blush",
+    },
+    {
+      id: 7,
+      text: "Innovation should be everyone's job, not just the product team's.",
+      color: "lavender",
+    },
+    {
+      id: 8,
+      text: "We need to stop doing 'more' and start doing 'better'. Focus is key.",
+      color: "blue",
+    },
+    {
+      id: 9,
+      text: "The remote-first culture is great, but we miss the spontaneous brainstorming sessions.",
+      color: "sage",
+    },
+    {
+      id: 10,
+      text: "Transparency is improving, but executive decisions still feel like a black box sometimes.",
+      color: "peach",
+    },
+    {
+      id: 11,
+      text: "We should invest more in our internal tools. Friction is killing productivity.",
+      color: "butter",
+    },
+    {
+      id: 12,
+      text: "The growth is exciting, but we need to ensure our culture scales with us.",
+      color: "blush",
+    },
+    {
+      id: 13,
+      text: "Let's simplify our reporting. We spend more time talking about work than doing it.",
+      color: "lavender",
+    },
+    {
+      id: 14,
+      text: "Diversity of thought is present, but we need safer spaces to disagree constructively.",
+      color: "blue",
+    },
+    {
+      id: 15,
+      text: "The onboarding experience was stellar, but the first six months felt like a blur.",
+      color: "sage",
+    },
+  ],
+  themes: [
+    {
+      id: "t1",
+      title: "Strategic Clarity",
+      description:
+        "A strong desire for clearer communication of the long-term vision and the reasoning behind major strategic pivots.",
+      count: 45,
+      percentage: 36,
+      color: "lavender",
+      subthemes: [
+        "Vision Alignment",
+        "Decision Transparency",
+        "Roadmap Clarity",
+      ],
+      quotes: [
+        {
+          id: 101,
+          text: "I want to know why we are choosing this path over others.",
+        },
+        {
+          id: 102,
+          text: "The strategy deck was good, but how does it change my daily work?",
+        },
+        { id: 103, text: "We need a north star that everyone can point to." },
+        {
+          id: 104,
+          text: "Our vision feels abstract. How do we measure success concretely?",
+        },
+        {
+          id: 105,
+          text: "Strategic updates come too infrequently. We need regular touchpoints.",
+        },
+        {
+          id: 106,
+          text: "I'd love to see how my team's work ties into the bigger picture.",
+        },
+        {
+          id: 107,
+          text: "The quarterly goals are clear, but the multi-year vision is fuzzy.",
+        },
+        {
+          id: 108,
+          text: "Decision-making seems reactive rather than proactive sometimes.",
+        },
+      ],
+    },
+    {
+      id: "t2",
+      title: "Operational Focus",
+      description:
+        "Feedback regarding the need to prioritize fewer, high-impact initiatives rather than spreading resources too thin.",
+      count: 38,
+      percentage: 31,
+      color: "blue",
+      subthemes: [
+        "Resource Allocation",
+        "Priority Setting",
+        "Process Efficiency",
+      ],
+      quotes: [
+        { id: 201, text: "We're trying to do too many things at once." },
+        {
+          id: 202,
+          text: "Let's finish what we started before launching the next big thing.",
+        },
+        {
+          id: 203,
+          text: "Our resources are stretched thin across too many projects.",
+        },
+        {
+          id: 204,
+          text: "I'm not sure which tasks are actually urgent versus just noisy.",
+        },
+        {
+          id: 205,
+          text: "We need clearer criteria for what gets prioritized and why.",
+        },
+        {
+          id: 206,
+          text: "Process improvements could save us hours every week.",
+        },
+        {
+          id: 207,
+          text: "The roadmap changes so often, it's hard to commit to anything long-term.",
+        },
+        {
+          id: 208,
+          text: "Sometimes I feel like we're moving fast but not forward.",
+        },
+      ],
+    },
+    {
+      id: "t3",
+      title: "Collaborative Culture",
+      description:
+        "Recognition of our strong team bonds coupled with a request for better tools and processes to bridge departmental silos.",
+      count: 32,
+      percentage: 26,
+      color: "sage",
+      subthemes: ["Cross-team Sync", "Knowledge Sharing", "Social Connection"],
+      quotes: [
+        { id: 301, text: "The best ideas happen when we talk across teams." },
+        { id: 302, text: "Silos are our biggest enemy." },
+        {
+          id: 303,
+          text: "I wish there was an easier way to see what other teams are working on.",
+        },
+        {
+          id: 304,
+          text: "Our culture is amazing but we need better systems to preserve it as we grow.",
+        },
+        {
+          id: 305,
+          text: "Knowledge is trapped in people's heads. We need better documentation.",
+        },
+        {
+          id: 306,
+          text: "Cross-functional projects are the most rewarding but also the hardest to coordinate.",
+        },
+        {
+          id: 307,
+          text: "Remote work is great but we're missing the informal hallway conversations.",
+        },
+        {
+          id: 308,
+          text: "I learn the most when I can shadow someone from a different department.",
+        },
+      ],
+    },
+  ],
+};
