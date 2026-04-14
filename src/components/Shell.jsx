@@ -7,8 +7,11 @@ import {
   Check,
   Maximize,
 } from "lucide-react";
+import { presentationTheme } from "../lib/presentationTheme";
 
-export const TopBar = ({ title, onTitleChange }) => {
+const ui = presentationTheme.classes;
+
+export const TopBar = ({ title }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -18,18 +21,20 @@ export const TopBar = ({ title, onTitleChange }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-[#E7E9E1] px-8 flex items-center justify-between z-50">
+    <div
+      className={`fixed top-0 left-0 right-0 h-16 bg-[color:rgb(255_255_255_/_0.86)] backdrop-blur-md ${ui.border} border-b px-8 flex items-center justify-between z-50`}
+    >
       <div className="flex items-center gap-4">
-        <h1 className="text-sm font-medium text-[#1F2937]">{title}</h1>
+        <h1 className={`text-sm font-medium ${ui.text}`}>{title}</h1>
       </div>
 
       <div className="flex items-center gap-3">
         <button
           onClick={handleCopy}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#4B5563] hover:bg-[#F7F7F2] rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-[#93C5FD]"
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium ${ui.textMuted} hover:bg-[var(--presentation-surface-muted)] rounded-full transition-colors ${ui.focusRing}`}
         >
           {copied ? (
-            <Check size={16} className="text-[#86C58F]" />
+            <Check size={16} className="text-[var(--presentation-success)]" />
           ) : (
             <LinkIcon size={16} />
           )}
@@ -90,44 +95,44 @@ export const BottomBar = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md border-t border-[#E7E9E1] px-8 flex items-center justify-center z-50">
-      {/* Center: Navigation with Slide Selector in between */}
+    <div
+      className={`fixed bottom-0 left-0 right-0 h-20 bg-[color:rgb(255_255_255_/_0.88)] backdrop-blur-md border-t ${ui.border} px-8 flex items-center justify-center z-50`}
+    >
       <div className="flex items-center justify-center gap-3">
         <button
           disabled={currentSlide === 0}
           onClick={onPrev}
-          className="p-2.5 text-[#6B7280] hover:text-[#1F2937] bg-white border border-[#E7E9E1] rounded-full disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none transition-all h-[44px] w-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+          className={`p-2.5 ${ui.textMuted} hover:text-[var(--presentation-text)] ${ui.surface} ${ui.borderStrong} border rounded-full disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none transition-all h-[44px] w-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_1px_2px_rgba(31,41,55,0.06)] ${ui.focusRing}`}
         >
           <ChevronLeft size={20} />
         </button>
 
-        {/* Slide Dropdown Selector */}
         <div
           ref={buttonRef}
-          className="relative bg-[#FCFCF9] border border-[#E7E9E1] rounded-full"
+          className={`relative bg-[var(--presentation-bg)] border ${ui.borderStrong} rounded-full`}
           style={{
             boxShadow:
-              "inset 4px 4px 10px rgba(15, 23, 42, 0.06), inset -4px -4px 10px rgba(255, 255, 255, 0.9)",
+              "inset 4px 4px 10px rgba(31, 41, 55, 0.05), inset -4px -4px 10px rgba(255, 255, 255, 0.88)",
           }}
         >
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="px-5 py-2.5 h-[44px] flex items-center gap-2 text-sm font-medium text-[#1F2937] hover:bg-white/50 rounded-full transition-all min-w-[320px]"
+            className={`px-5 py-2.5 h-[44px] flex items-center gap-2 text-sm font-medium ${ui.text} hover:bg-[var(--presentation-surface-muted)] rounded-full transition-all min-w-[320px] ${ui.focusRing}`}
           >
             <span className="truncate flex-1 text-left">{slideTitle}</span>
-            <span className="text-[#9CA3AF] text-xs font-normal flex-shrink-0">
+            <span className={`${ui.textSoft} text-xs font-normal flex-shrink-0`}>
               {currentSlide + 1} of {totalSlides}
             </span>
             <ChevronDown
               size={16}
-              className={`transition-transform duration-200 flex-shrink-0 text-[#6B7280] ${showMenu ? "rotate-180" : ""}`}
+              className={`transition-transform duration-200 flex-shrink-0 ${ui.textSoft} ${showMenu ? "rotate-180" : ""}`}
             />
           </button>
 
           {showMenu && (
             <div
               ref={menuRef}
-              className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 w-[320px] bg-white border border-[#E7E9E1] rounded-[24px] shadow-[0_10px_24px_rgba(15,23,42,0.06)] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200"
+              className={`absolute bottom-full mb-4 left-1/2 -translate-x-1/2 w-[320px] ${ui.surface} ${ui.border} rounded-[24px] shadow-[0_12px_28px_rgba(31,41,55,0.08)] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200`}
             >
               <div className="py-2">
                 {slides.map((s) => (
@@ -139,8 +144,8 @@ export const BottomBar = ({
                     }}
                     className={`w-full px-5 h-[44px] text-left text-sm flex items-center justify-between transition-colors ${
                       currentSlide === s.id
-                        ? "bg-[#E8F1FF] text-[#1F2937] font-medium"
-                        : "text-[#6B7280] hover:bg-[#F8F8F4]"
+                        ? "bg-[var(--mantine-color-blue-0)] text-[var(--presentation-text)] font-medium"
+                        : "text-[var(--presentation-text-muted)] hover:bg-[var(--presentation-surface-muted)]"
                     }`}
                   >
                     <span className="truncate">
@@ -149,7 +154,7 @@ export const BottomBar = ({
                     {currentSlide === s.id && (
                       <Check
                         size={14}
-                        className="text-[#93C5FD] flex-shrink-0 ml-2"
+                        className="text-[var(--presentation-accent)] flex-shrink-0 ml-2"
                       />
                     )}
                   </button>
@@ -162,17 +167,16 @@ export const BottomBar = ({
         <button
           disabled={currentSlide === totalSlides - 1}
           onClick={onNext}
-          className="p-2.5 text-[#6B7280] hover:text-[#1F2937] bg-white border border-[#E7E9E1] rounded-full disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none transition-all h-[44px] w-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+          className={`p-2.5 ${ui.textMuted} hover:text-[var(--presentation-text)] ${ui.surface} ${ui.borderStrong} border rounded-full disabled:opacity-30 disabled:cursor-not-allowed disabled:pointer-events-none transition-all h-[44px] w-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_1px_2px_rgba(31,41,55,0.06)] ${ui.focusRing}`}
         >
           <ChevronRight size={20} />
         </button>
       </div>
 
-      {/* Right Section: Fullscreen Button */}
       <div className="absolute right-8">
         <button
           onClick={handleFullscreen}
-          className="p-2.5 text-[#6B7280] hover:text-[#1F2937] bg-white border border-[#E7E9E1] rounded-full transition-all h-[44px] w-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+          className={`p-2.5 ${ui.textMuted} hover:text-[var(--presentation-text)] ${ui.surface} ${ui.borderStrong} border rounded-full transition-all h-[44px] w-[44px] flex items-center justify-center flex-shrink-0 shadow-[0_1px_2px_rgba(31,41,55,0.06)] ${ui.focusRing}`}
         >
           <Maximize size={20} />
         </button>

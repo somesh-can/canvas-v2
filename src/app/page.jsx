@@ -6,6 +6,7 @@ import QuotesSlide from "../components/slides/QuotesSlide";
 import ThemesSlide from "../components/slides/ThemesSlide";
 import ThemeDetailsSlide from "../components/slides/ThemeDetailsSlide";
 import { presentationData as initialData } from "../data/mockData";
+import { presentationTheme } from "../lib/presentationTheme";
 
 export default function PresentationPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -84,7 +85,7 @@ export default function PresentationPage() {
 
   return (
     <div
-      className={`min-h-screen bg-[#FCFCF9] pb-32 font-['DM Sans'] ${isFullscreen ? "pt-0" : "pt-16"}`}
+      className={`${presentationTheme.classes.pageShell} min-h-screen pb-32 font-['DM Sans'] ${isFullscreen ? "pt-0" : "pt-16"}`}
     >
       {/* Global CSS for DM Sans and smooth scroll */}
       <style jsx global>{`
@@ -92,20 +93,6 @@ export default function PresentationPage() {
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap');
-        
-        :root {
-          --bg: #FCFCF9;
-          --bg-subtle: #F8F8F4;
-          --surface: #FFFFFF;
-          --border: #E7E9E1;
-          --text: #1F2937;
-          --text-soft: #4B5563;
-          --lavender-200: #DDD6FE;
-          --blue-200: #CFE3FF;
-          --sage-200: #D7EEDB;
-          --radius-lg: 18px;
-          --radius-xl: 24px;
-        }
 
         html {
           scroll-behavior: smooth;
@@ -113,8 +100,6 @@ export default function PresentationPage() {
 
         body {
           font-family: 'DM Sans', sans-serif;
-          background-color: var(--bg);
-          color: var(--text);
           margin: 0;
           min-height: 100vh;
           overflow-y: scroll;
@@ -127,14 +112,14 @@ export default function PresentationPage() {
           width: 8px;
         }
         ::-webkit-scrollbar-track {
-          background: var(--bg);
+          background: var(--presentation-bg);
         }
         ::-webkit-scrollbar-thumb {
-          background: var(--border);
+          background: var(--presentation-border);
           border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: #D8DDD2;
+          background: var(--presentation-border-strong);
         }
 
         /* Animations */

@@ -3,7 +3,134 @@
 @tailwind utilities;
 
 @layer base {
-  input, textarea, select, button {
+  :root {
+    /* Mantine-style primitives backed by canonical open-color values. */
+    --mantine-color-gray-0: #f8f9fa;
+    --mantine-color-gray-1: #f1f3f5;
+    --mantine-color-gray-2: #e9ecef;
+    --mantine-color-gray-3: #dee2e6;
+    --mantine-color-gray-4: #ced4da;
+    --mantine-color-gray-5: #adb5bd;
+    --mantine-color-gray-6: #868e96;
+    --mantine-color-gray-7: #495057;
+    --mantine-color-gray-8: #343a40;
+    --mantine-color-gray-9: #212529;
+
+    --mantine-color-blue-0: #e7f5ff;
+    --mantine-color-blue-1: #d0ebff;
+    --mantine-color-blue-2: #a5d8ff;
+    --mantine-color-blue-3: #74c0fc;
+    --mantine-color-blue-4: #4dabf7;
+    --mantine-color-blue-5: #339af0;
+    --mantine-color-blue-6: #228be6;
+    --mantine-color-blue-7: #1c7ed6;
+    --mantine-color-blue-8: #1971c2;
+    --mantine-color-blue-9: #1864ab;
+
+    --mantine-color-grape-0: #f8f0fc;
+    --mantine-color-grape-1: #f3d9fa;
+    --mantine-color-grape-2: #eebefa;
+    --mantine-color-grape-3: #e599f7;
+    --mantine-color-grape-4: #da77f2;
+    --mantine-color-grape-5: #cc5de8;
+    --mantine-color-grape-6: #be4bdb;
+    --mantine-color-grape-7: #ae3ec9;
+    --mantine-color-grape-8: #9c36b5;
+    --mantine-color-grape-9: #862e9c;
+
+    --mantine-color-green-0: #ebfbee;
+    --mantine-color-green-1: #d3f9d8;
+    --mantine-color-green-2: #b2f2bb;
+    --mantine-color-green-3: #8ce99a;
+    --mantine-color-green-4: #69db7c;
+    --mantine-color-green-5: #51cf66;
+    --mantine-color-green-6: #40c057;
+    --mantine-color-green-7: #37b24d;
+    --mantine-color-green-8: #2f9e44;
+    --mantine-color-green-9: #2b8a3e;
+
+    --mantine-color-orange-0: #fff4e6;
+    --mantine-color-orange-1: #ffe8cc;
+    --mantine-color-orange-2: #ffd8a8;
+    --mantine-color-orange-3: #ffc078;
+    --mantine-color-orange-4: #ffa94d;
+    --mantine-color-orange-5: #ff922b;
+    --mantine-color-orange-6: #fd7e14;
+    --mantine-color-orange-7: #f76707;
+    --mantine-color-orange-8: #e8590c;
+    --mantine-color-orange-9: #d9480f;
+
+    --mantine-color-yellow-0: #fff9db;
+    --mantine-color-yellow-1: #fff3bf;
+    --mantine-color-yellow-2: #ffec99;
+    --mantine-color-yellow-3: #ffe066;
+    --mantine-color-yellow-4: #ffd43b;
+    --mantine-color-yellow-5: #fcc419;
+    --mantine-color-yellow-6: #fab005;
+    --mantine-color-yellow-7: #f59f00;
+    --mantine-color-yellow-8: #f08c00;
+    --mantine-color-yellow-9: #e67700;
+
+    --mantine-color-pink-0: #fff0f6;
+    --mantine-color-pink-1: #ffdeeb;
+    --mantine-color-pink-2: #fcc2d7;
+    --mantine-color-pink-3: #faa2c1;
+    --mantine-color-pink-4: #f783ac;
+    --mantine-color-pink-5: #f06595;
+    --mantine-color-pink-6: #e64980;
+    --mantine-color-pink-7: #d6336c;
+    --mantine-color-pink-8: #c2255c;
+    --mantine-color-pink-9: #a61e4d;
+
+    /* Semantic presentation tokens tuned for a light, projector-friendly look. */
+    --presentation-bg: #fcfcf8;
+    --presentation-bg-subtle: #f6f5ef;
+    --presentation-surface: #ffffff;
+    --presentation-surface-elevated: #faf9f3;
+    --presentation-surface-muted: #f2efe8;
+    --presentation-border: #e4dfd3;
+    --presentation-border-strong: #d4ccbd;
+    --presentation-text: #1f2430;
+    --presentation-text-muted: #515968;
+    --presentation-text-soft: #717887;
+    --presentation-focus: var(--mantine-color-blue-7);
+    --presentation-accent: var(--mantine-color-blue-7);
+    --presentation-accent-soft: var(--mantine-color-blue-1);
+    --presentation-accent-strong: var(--mantine-color-blue-8);
+    --presentation-success: var(--mantine-color-green-7);
+    --presentation-overlay: rgb(31 36 48 / 0.46);
+
+    /* Compatibility aliases for component code. */
+    --bg: var(--presentation-bg);
+    --bg-subtle: var(--presentation-bg-subtle);
+    --surface: var(--presentation-surface);
+    --surface-elevated: var(--presentation-surface-elevated);
+    --border: var(--presentation-border);
+    --border-strong: var(--presentation-border-strong);
+    --text: var(--presentation-text);
+    --text-muted: var(--presentation-text-muted);
+    --text-soft: var(--presentation-text-soft);
+  }
+
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--presentation-bg);
+    color: var(--presentation-text);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--presentation-focus);
+    outline-offset: 2px;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
     @apply outline-none focus:outline-none;
   }
 }

@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { presentationData } from "../../data/mockData";
+import { presentationTheme } from "../../lib/presentationTheme";
+
+const ui = presentationTheme.classes;
+const colorMap = presentationTheme.tones;
 
 export default function QuotesSlide() {
   const [selectedQuote, setSelectedQuote] = useState(null);
   const { quotes } = presentationData;
-
-  const colorMap = {
-    lavender: "bg-[#F1ECFF] border-[#DDD2FF] text-[#1F2937]",
-    blue: "bg-[#ECF5FF] border-[#D6E8FF] text-[#1F2937]",
-    sage: "bg-[#EFF8F1] border-[#D8EEDC] text-[#1F2937]",
-    peach: "bg-[#FFF2EC] border-[#FFDCCF] text-[#1F2937]",
-    butter: "bg-[#FFFBEA] border-[#F6EDBF] text-[#1F2937]",
-    blush: "bg-[#FFF0F4] border-[#FFD9E4] text-[#1F2937]",
-  };
 
   const fontOptions = [
     "font-noto-sans",
@@ -65,7 +60,7 @@ export default function QuotesSlide() {
     <div className="max-w-7xl mx-auto px-8 py-16 animate-in fade-in duration-500">
       {!selectedQuote && (
         <div className="mb-12">
-          <h2 className="text-3xl font-semibold text-[#1F2937] tracking-tight">
+          <h2 className={`text-3xl font-semibold ${ui.text} tracking-tight`}>
             What you said from {quotes.length} responses
           </h2>
         </div>
@@ -76,7 +71,7 @@ export default function QuotesSlide() {
           <button
             key={quote.id}
             onClick={() => openQuote(quote)}
-            className={`break-inside-avoid w-full p-8 rounded-[24px] border cursor-pointer hover:scale-[1.02] transition-all duration-300 text-left focus-visible:outline-2 focus-visible:outline-[#93C5FD] mb-8 ${
+            className={`break-inside-avoid w-full p-8 rounded-[24px] border cursor-pointer hover:scale-[1.02] hover:shadow-[0_10px_24px_rgba(31,41,55,0.08)] transition-all duration-300 text-left ${ui.focusRing} mb-8 ${
               colorMap[quote.color] || colorMap.lavender
             } ${getRandomFont(index)}`}
             aria-label={`Read full quote: ${quote.text.substring(0, 50)}...`}
@@ -93,7 +88,7 @@ export default function QuotesSlide() {
           data-quote-overlay="true"
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[100] flex items-center justify-center p-8 bg-black/40 backdrop-blur-xl"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-8 bg-[var(--presentation-overlay)] backdrop-blur-xl"
           onClick={closeQuote}
         >
           <div
@@ -102,19 +97,19 @@ export default function QuotesSlide() {
           >
             <button
               onClick={() => navigateQuote(-1)}
-              className="p-4 bg-white/80 border border-[#E7E9E1] rounded-full hover:bg-white transition-all shadow-sm active:scale-90 focus-visible:outline-2 focus-visible:outline-[#93C5FD]"
+              className={`p-4 bg-[color:rgb(255_255_255_/_0.88)] ${ui.border} rounded-full hover:bg-white transition-all shadow-sm active:scale-90 ${ui.focusRing}`}
               aria-label="Previous quote"
             >
-              <ChevronLeft size={32} className="text-[#1F2937]" />
+              <ChevronLeft size={32} className={ui.text} />
             </button>
 
             <div className="relative flex-1">
               <button
                 onClick={closeQuote}
-                className="absolute -top-16 left-1/2 -translate-x-1/2 p-3 bg-white border border-[#E7E9E1] rounded-full hover:bg-[#F8F8F4] transition-colors shadow-lg focus-visible:outline-2 focus-visible:outline-[#93C5FD] z-10"
+                className={`absolute -top-16 left-1/2 -translate-x-1/2 p-3 ${ui.surface} ${ui.border} rounded-full hover:bg-[var(--presentation-surface-muted)] transition-colors shadow-lg ${ui.focusRing} z-10`}
                 aria-label="Close quote detail"
               >
-                <X size={24} className="text-[#1F2937]" />
+                <X size={24} className={ui.text} />
               </button>
 
               <div
@@ -130,10 +125,10 @@ export default function QuotesSlide() {
 
             <button
               onClick={() => navigateQuote(1)}
-              className="p-4 bg-white/80 border border-[#E7E9E1] rounded-full hover:bg-white transition-all shadow-sm active:scale-90 focus-visible:outline-2 focus-visible:outline-[#93C5FD]"
+              className={`p-4 bg-[color:rgb(255_255_255_/_0.88)] ${ui.border} rounded-full hover:bg-white transition-all shadow-sm active:scale-90 ${ui.focusRing}`}
               aria-label="Next quote"
             >
-              <ChevronRight size={32} className="text-[#1F2937]" />
+              <ChevronRight size={32} className={ui.text} />
             </button>
           </div>
         </div>

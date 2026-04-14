@@ -118,9 +118,9 @@ function InternalErrorBoundary({ error: errorArg }: Route.ErrorBoundaryProps) {
         const toastScale = shouldScale ? 1.2 : 1;
         const toastStyle = {
           padding: `${16 * toastScale}px`,
-          background: '#18191B',
-          border: '1px solid #2C2D2F',
-          color: 'white',
+          background: '#1f2430',
+          border: '1px solid #343a40',
+          color: '#f8f9fa',
           borderRadius: '12px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           width: `${280 * toastScale}px`,
@@ -179,7 +179,7 @@ function InternalErrorBoundary({ error: errorArg }: Route.ErrorBoundaryProps) {
           style={{ width: '75vw' }}
         >
           <div
-            className="bg-[#18191B] text-[#F2F2F2] rounded-lg p-4 shadow-lg w-full"
+            className="bg-[#1f2430] text-[#f8f9fa] rounded-lg p-4 shadow-lg w-full border border-[#343a40]"
             style={
               scaleFactor !== 1
                 ? ({
@@ -191,21 +191,21 @@ function InternalErrorBoundary({ error: errorArg }: Route.ErrorBoundaryProps) {
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-[#F2F2F2] rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-[#f8f9fa] rounded-full flex items-center justify-center">
                   <span className="text-black text-[1.125rem] leading-none">!</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2 flex-1">
                 <div className="flex flex-col gap-1">
-                  <p className="font-light text-[#F2F2F2] text-sm">App Error Detected</p>
-                  <p className="text-[#959697] text-sm font-light">
+                  <p className="font-light text-[#f8f9fa] text-sm">App Error Detected</p>
+                  <p className="text-[#c1c7ce] text-sm font-light">
                     It looks like an error occurred while trying to use your app.
                   </p>
                 </div>
 
                 <button
-                  className={`flex flex-row items-center justify-center gap-[4px] outline-none transition-colors rounded-[8px] border-[1px] bg-[#2C2D2F] hover:bg-[#414243] active:bg-[#555658] border-[#414243] text-white ${copyButtonTextClass} ${copyButtonPaddingClass} w-fit`}
+                  className={`flex flex-row items-center justify-center gap-[4px] outline-none transition-colors rounded-[8px] border-[1px] bg-[#343a40] hover:bg-[#495057] active:bg-[#5c6670] border-[#495057] text-[#f8f9fa] ${copyButtonTextClass} ${copyButtonPaddingClass} w-fit`}
                   type="button"
                   {...copyButtonProps}
                 >
