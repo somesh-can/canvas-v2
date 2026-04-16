@@ -63,6 +63,7 @@ export const BottomBar = ({
     { id: 2, title: "Quotes" },
     { id: 3, title: "Themes" },
     { id: 4, title: "Theme Details" },
+    { id: 5, title: "Voting" },
   ];
 
   useEffect(() => {

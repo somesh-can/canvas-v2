@@ -5,6 +5,7 @@ import QuestionsSlide from "../components/slides/QuestionsSlide";
 import QuotesSlide from "../components/slides/QuotesSlide";
 import ThemesSlide from "../components/slides/ThemesSlide";
 import ThemeDetailsSlide from "../components/slides/ThemeDetailsSlide";
+import VotingSlide from "../components/slides/VotingSlide";
 import { presentationData as initialData } from "../data/mockData";
 import { presentationTheme } from "../lib/presentationTheme";
 
@@ -19,6 +20,7 @@ export default function PresentationPage() {
     { id: 2, title: "Quotes", component: <QuotesSlide /> },
     { id: 3, title: "Themes", component: <ThemesSlide /> },
     { id: 4, title: "Theme Details", component: <ThemeDetailsSlide /> },
+    { id: 5, title: "Voting", component: <VotingSlide /> },
   ];
 
   const totalSlides = slides.length;

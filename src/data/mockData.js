@@ -7,6 +7,13 @@ export const presentationData = {
     { label: "Themes Identified", value: "6" },
     { label: "Messages sent", value: "482" },
   ],
+  voting: {
+    question:
+      "Which strategic theme should we prioritize first for execution in 2026?",
+    votesPerPerson: 3,
+    joinUrl: "canvas.vote/join/2026-sync",
+    joinCode: "882 109",
+  },
   questions: [
     {
       id: "q1",
