@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import { existsSync } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -9,14 +10,19 @@ import updatedFetch from '../src/__create/fetch';
 const API_BASENAME = '/api';
 const api = new Hono();
 
-// Get current directory
-const __dirname = join(fileURLToPath(new URL('.', import.meta.url)), '../src/app/api');
+// Prefer source tree path during build/prerender (e.g. Vercel), fallback to relative path.
+const sourceApiDir = join(process.cwd(), 'src', 'app', 'api');
+const bundledApiDir = join(fileURLToPath(new URL('.', import.meta.url)), '../src/app/api');
+const __dirname = existsSync(sourceApiDir) ? sourceApiDir : bundledApiDir;
 if (globalThis.fetch) {
   globalThis.fetch = updatedFetch;
 }
 
 // Recursively find all route.js files
 async function findRouteFiles(dir: string): Promise<string[]> {
+  if (!existsSync(dir)) {
+    return [];
+  }
   const files = await readdir(dir);
   let routes: string[] = [];
 
