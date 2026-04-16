@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bunx react-router build",
+  "buildCommand": "VERCEL_STATIC=1 bunx react-router build",
   "outputDirectory": "build/client",
   "routes": [
     {
