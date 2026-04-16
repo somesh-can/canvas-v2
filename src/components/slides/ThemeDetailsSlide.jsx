@@ -202,7 +202,7 @@ export default function ThemeDetailsSlide() {
         <div className="space-y-6">
           <h4 className={`text-base font-semibold ${ui.text}`}>Supporting quotes</h4>
           <div className="grid md:grid-cols-2 gap-6">
-            {selectedTheme.quotes.map((q, index) => (
+            {selectedTheme.quotes.slice(0, 6).map((q, index) => (
               <div
                 key={q.id}
                 className={`p-6 rounded-[24px] border transition-all ${colorMap[selectedTheme.color]}`}

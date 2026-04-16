@@ -339,7 +339,7 @@ export default function VotingSlide() {
 
               <div className={`${ui.surface} ${ui.border} border rounded-2xl p-6 space-y-3`}>
                 <p className={`text-base font-semibold ${ui.text}`}>Key takeaways</p>
-                <ul className={`space-y-2 text-sm ${ui.textMuted}`}>
+                <ul className={`space-y-2 text-base leading-relaxed ${ui.textMuted}`}>
                   <li>{topTheme?.title} currently leads with {topTheme?.percentage}% support.</li>
                   <li>{participantsCompleted} participants completed voting with {totalVotesCast} total votes cast.</li>
                   <li>{topTheme?.subthemes?.[0]} is the strongest recurring signal across responses.</li>

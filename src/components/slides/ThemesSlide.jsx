@@ -146,6 +146,9 @@ export default function ThemesSlide({ defaultMode = "overview" }) {
           <h2 className={`text-3xl font-semibold ${ui.text} tracking-tight`}>
             Everything you said in {themes.length} areas
           </h2>
+          <p className={`text-base ${ui.textMuted}`}>
+            Click a card to focus on one theme and see its supporting quotes.
+          </p>
         </div>
 
         <div className={`flex p-1 bg-[var(--presentation-surface-elevated)] border ${ui.border} rounded-full`}>
