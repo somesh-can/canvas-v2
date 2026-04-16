@@ -1,5 +1,5 @@
 {
-  "buildCommand": "VERCEL_STATIC=1 bunx react-router build",
+  "buildCommand": "bunx vite build && node scripts/generate-vercel-index.mjs",
   "outputDirectory": "build/client",
   "routes": [
     {
