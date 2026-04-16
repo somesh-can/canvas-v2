@@ -78,6 +78,10 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   clearScreen: false,
+  build: {
+    // Required for server bundle code paths that rely on top-level await.
+    target: 'esnext',
+  },
   server: {
     allowedHosts: true,
     host: '0.0.0.0',

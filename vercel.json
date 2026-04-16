@@ -1,0 +1,4 @@
+{
+  "buildCommand": "bunx react-router build",
+  "outputDirectory": "build/client"
+}
