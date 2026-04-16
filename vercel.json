@@ -1,4 +1,13 @@
 {
   "buildCommand": "bunx react-router build",
-  "outputDirectory": "build/client"
+  "outputDirectory": "build/client",
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ]
 }
