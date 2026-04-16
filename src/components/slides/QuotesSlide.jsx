@@ -63,6 +63,9 @@ export default function QuotesSlide() {
           <h2 className={`text-3xl font-semibold ${ui.text} tracking-tight`}>
             What you said from {quotes.length} responses
           </h2>
+          <p className={`mt-2 text-base ${ui.textMuted}`}>
+            Click a card to focus on one quote and read it in full.
+          </p>
         </div>
       )}
 

@@ -6,12 +6,13 @@ import {
   ChevronDown,
   Check,
   Maximize,
+  FileDown,
 } from "lucide-react";
 import { presentationTheme } from "../lib/presentationTheme";
 
 const ui = presentationTheme.classes;
 
-export const TopBar = ({ title }) => {
+export const TopBar = ({ title, onDownloadReport }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -29,6 +30,15 @@ export const TopBar = ({ title }) => {
       </div>
 
       <div className="flex items-center gap-3">
+        {onDownloadReport && (
+          <button
+            onClick={onDownloadReport}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium ${ui.textMuted} hover:bg-[var(--presentation-surface-muted)] rounded-full transition-colors ${ui.focusRing}`}
+          >
+            <FileDown size={16} />
+            Download PDF
+          </button>
+        )}
         <button
           onClick={handleCopy}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-medium ${ui.textMuted} hover:bg-[var(--presentation-surface-muted)] rounded-full transition-colors ${ui.focusRing}`}
@@ -64,6 +74,8 @@ export const BottomBar = ({
     { id: 3, title: "Themes" },
     { id: 4, title: "Theme Details" },
     { id: 5, title: "Voting" },
+    { id: 6, title: "Results Snapshot" },
+    { id: 7, title: "Insight To Action" },
   ];
 
   useEffect(() => {
