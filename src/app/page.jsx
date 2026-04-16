@@ -6,13 +6,20 @@ import QuotesSlide from "../components/slides/QuotesSlide";
 import ThemesSlide from "../components/slides/ThemesSlide";
 import ThemeDetailsSlide from "../components/slides/ThemeDetailsSlide";
 import VotingSlide from "../components/slides/VotingSlide";
+import ResultsSnapshotSlide from "../components/slides/ResultsSnapshotSlide";
+import ResultsActionSlide from "../components/slides/ResultsActionSlide";
 import { presentationData as initialData } from "../data/mockData";
 import { presentationTheme } from "../lib/presentationTheme";
+import { downloadDetailedReportPdf } from "../lib/reportPdf";
 
 export default function PresentationPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [presentationData, setPresentationData] = useState(initialData);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const handleDownloadReport = () => {
+    downloadDetailedReportPdf(presentationData);
+  };
 
   const slides = [
     { id: 0, title: "Overview", component: <OverviewSlide /> },
@@ -21,6 +28,12 @@ export default function PresentationPage() {
     { id: 3, title: "Themes", component: <ThemesSlide /> },
     { id: 4, title: "Theme Details", component: <ThemeDetailsSlide /> },
     { id: 5, title: "Voting", component: <VotingSlide /> },
+    { id: 6, title: "Results Snapshot", component: <ResultsSnapshotSlide /> },
+    {
+      id: 7,
+      title: "Insight To Action",
+      component: <ResultsActionSlide onDownloadReport={handleDownloadReport} />,
+    },
   ];
 
   const totalSlides = slides.length;
@@ -144,7 +157,12 @@ export default function PresentationPage() {
         }
       `}</style>
 
-      {!isFullscreen && <TopBar title={presentationData.title} />}
+      {!isFullscreen && (
+        <TopBar
+          title={presentationData.title}
+          onDownloadReport={handleDownloadReport}
+        />
+      )}
 
       <main className="min-h-[calc(100vh-9rem)] animate-fade-in">
         {slides[currentSlide].component}
