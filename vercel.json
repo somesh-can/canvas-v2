@@ -1,13 +1,5 @@
 {
-  "buildCommand": "bunx react-router build",
-  "outputDirectory": "build/client",
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/.*",
-      "dest": "/index.html"
-    }
-  ]
+  "installCommand": "bun install",
+  "buildCommand": "bun run build",
+  "outputDirectory": "dist"
 }
