@@ -19,18 +19,17 @@ export function getRankedThemes(data) {
 export function getExecutiveSummary(data) {
   const rankedThemes = getRankedThemes(data);
   const topThemes = rankedThemes.slice(0, 3);
-  const topTheme = topThemes[0];
 
   return {
-    title: "What The Canvas Says",
-    headline: `${topThemes.length} themes account for most of the signal`,
+    title: "Top 3 themes",
     topThemes,
     takeaways: [
       "People want clearer strategic reasoning behind key decisions.",
       "Focus and prioritization are the main execution gap.",
       "Cross-team collaboration is a strength, but systems lag behind it.",
+      "Teams respond well to shared direction when it is explicit and repeated.",
+      "Operational friction shows up less as resistance and more as overload.",
     ],
-    recommendation: `Start with ${topTheme.title} to unlock better prioritization and alignment.`,
   };
 }
 
