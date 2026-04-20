@@ -16,12 +16,29 @@ export function getRankedThemes(data) {
   );
 }
 
+export function getRankedVotingThemes(data, voteCounts = {}) {
+  const totalVotes = Object.values(voteCounts).reduce((sum, count) => sum + count, 0);
+
+  return data.themes
+    .map((theme) => {
+      const votes = voteCounts[theme.id] || 0;
+      const percentage = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+
+      return {
+        ...theme,
+        votes,
+        percentage,
+      };
+    })
+    .sort((a, b) => b.votes - a.votes || b.count - a.count);
+}
+
 export function getExecutiveSummary(data) {
   const rankedThemes = getRankedThemes(data);
   const topThemes = rankedThemes.slice(0, 3);
 
   return {
-    title: "Top 3 themes",
+    title: "Top themes",
     topThemes,
     takeaways: [
       "People want clearer strategic reasoning behind key decisions.",
@@ -30,6 +47,40 @@ export function getExecutiveSummary(data) {
       "Teams respond well to shared direction when it is explicit and repeated.",
       "Operational friction shows up less as resistance and more as overload.",
     ],
+    recommendation:
+      "Recommended first move: align on one strategic narrative and cascade it into team priorities.",
+  };
+}
+
+export function getResultsSnapshotSummary(data, votingState = {}) {
+  const {
+    isComplete = false,
+    voteCounts = {},
+    participantsCompleted = 0,
+  } = votingState;
+
+  if (!isComplete) {
+    return {
+      title: "Top themes",
+      topThemes: getRankedThemes(data).slice(0, 6),
+      takeaways: [],
+      showTakeaways: false,
+    };
+  }
+
+  const rankedThemes = getRankedVotingThemes(data, voteCounts).slice(0, 3);
+  const totalVotes = Object.values(voteCounts).reduce((sum, count) => sum + count, 0);
+  const topTheme = rankedThemes[0] || getRankedThemes(data)[0];
+
+  return {
+    title: "Top themes",
+    topThemes: rankedThemes,
+    takeaways: [
+      `${topTheme?.title} leads the live prioritization with ${topTheme?.percentage}% of votes.`,
+      `${participantsCompleted} participants completed voting with ${totalVotes} total votes cast.`,
+      `${topTheme?.subthemes?.[0]} is the strongest recurring signal behind the leading theme.`,
+    ],
+    showTakeaways: true,
   };
 }
 

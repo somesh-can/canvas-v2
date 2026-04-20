@@ -57,26 +57,19 @@ export const TopBar = ({ title, onDownloadReport }) => {
 
 export const BottomBar = ({
   currentSlide,
+  currentSlideId,
   totalSlides,
+  slides,
   onPrev,
   onNext,
   onJump,
   slideTitle,
+  votingEnabled,
+  onToggleVoting,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
-
-  const slides = [
-    { id: 0, title: "Overview" },
-    { id: 1, title: "Questions" },
-    { id: 2, title: "Quotes" },
-    { id: 3, title: "Themes" },
-    { id: 4, title: "Theme Details" },
-    { id: 5, title: "Voting" },
-    { id: 6, title: "Results Snapshot" },
-    { id: 7, title: "Insight To Action" },
-  ];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -111,6 +104,35 @@ export const BottomBar = ({
     <div
       className={`fixed bottom-0 left-0 right-0 h-20 bg-[color:rgb(255_255_255_/_0.88)] backdrop-blur-md border-t ${ui.border} px-8 flex items-center justify-center z-50`}
     >
+      <div className="absolute left-8">
+        <button
+          type="button"
+          onClick={onToggleVoting}
+          aria-pressed={votingEnabled}
+          className={`h-[44px] px-3 pr-4 rounded-full flex items-center gap-3 text-sm font-medium transition-all shadow-[0_1px_2px_rgba(31,41,55,0.06)] ${
+            votingEnabled
+              ? "bg-[#fffffe] text-[var(--presentation-text)]"
+              : `bg-[#fffffe] ${ui.textMuted} hover:text-[var(--presentation-text)]`
+          } ${ui.focusRing}`}
+        >
+          <span
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              votingEnabled
+                ? "bg-[var(--presentation-text)]"
+                : "bg-[var(--presentation-border)]"
+            }`}
+            aria-hidden="true"
+          >
+            <span
+              className={`inline-block h-5 w-5 rounded-full bg-white shadow-[0_1px_3px_rgba(31,41,55,0.18)] transition-transform ${
+                votingEnabled ? "translate-x-5" : "translate-x-0.5"
+              }`}
+            />
+          </span>
+          Prioritize themes
+        </button>
+      </div>
+
       <div className="flex items-center justify-center gap-3">
         <button
           disabled={currentSlide === 0}
@@ -148,7 +170,7 @@ export const BottomBar = ({
               className={`absolute bottom-full mb-4 left-1/2 -translate-x-1/2 w-[320px] ${ui.surface} ${ui.border} rounded-[24px] shadow-[0_12px_28px_rgba(31,41,55,0.08)] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200`}
             >
               <div className="py-2">
-                {slides.map((s) => (
+                {slides.map((s, index) => (
                   <button
                     key={s.id}
                     onClick={() => {
@@ -156,15 +178,15 @@ export const BottomBar = ({
                       setShowMenu(false);
                     }}
                     className={`w-full px-5 h-[44px] text-left text-sm flex items-center justify-between transition-colors ${
-                      currentSlide === s.id
+                      currentSlideId === s.id
                         ? "bg-[var(--mantine-color-blue-0)] text-[var(--presentation-text)] font-medium"
                         : "text-[var(--presentation-text-muted)] hover:bg-[var(--presentation-surface-muted)]"
                     }`}
                   >
                     <span className="truncate">
-                      {s.id + 1}. {s.title}
+                      {index + 1}. {s.title}
                     </span>
-                    {currentSlide === s.id && (
+                    {currentSlideId === s.id && (
                       <Check
                         size={14}
                         className="text-[var(--presentation-accent)] flex-shrink-0 ml-2"

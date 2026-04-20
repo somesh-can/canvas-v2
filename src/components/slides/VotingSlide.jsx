@@ -9,7 +9,6 @@ import {
   SlidersHorizontal,
   Users,
 } from "lucide-react";
-import { presentationData } from "../../data/mockData";
 import { presentationTheme } from "../../lib/presentationTheme";
 
 const ui = presentationTheme.classes;
@@ -23,8 +22,14 @@ function parseMetricNumber(value, fallback = 124) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-export default function VotingSlide() {
+export default function VotingSlide({
+  presentationData,
+  votingSession,
+  onVotingSessionChange,
+}) {
   const { goal, themes, metrics, voting } = presentationData;
+  const { phase, question, votesPerPerson, participantsJoined, participantsCompleted, voteCounts } =
+    votingSession;
   const totalParticipants = parseMetricNumber(
     metrics.find((metric) => metric.label === "Respondents")?.value,
     124,
@@ -33,13 +38,7 @@ export default function VotingSlide() {
   const initialCompleted = Math.min(totalParticipants, Math.round(totalParticipants * 0.56));
   const initialVoteCounts = Object.fromEntries(themes.map((theme) => [theme.id, theme.count]));
 
-  const [phase, setPhase] = useState("configure");
-  const [question, setQuestion] = useState(voting.question);
-  const [votesPerPerson, setVotesPerPerson] = useState(voting.votesPerPerson);
-  const [participantsJoined, setParticipantsJoined] = useState(initialJoined);
-  const [participantsCompleted, setParticipantsCompleted] = useState(initialCompleted);
   const [isQrOverlayOpen, setIsQrOverlayOpen] = useState(false);
-  const [voteCounts, setVoteCounts] = useState(() => ({ ...initialVoteCounts }));
 
   const rankedThemes = useMemo(() => {
     const totalVotes = Object.values(voteCounts).reduce((sum, n) => sum + n, 0);
@@ -55,24 +54,33 @@ export default function VotingSlide() {
   const totalVotesCast = Object.values(voteCounts).reduce((sum, n) => sum + n, 0);
   const topTheme = rankedThemes[0];
 
+  const updateVotingSession = (updates) => {
+    onVotingSessionChange((currentState) => ({
+      ...currentState,
+      ...updates,
+    }));
+  };
+
   const resetSession = () => {
-    setParticipantsJoined(initialJoined);
-    setParticipantsCompleted(initialCompleted);
-    setVoteCounts({ ...initialVoteCounts });
+    updateVotingSession({
+      participantsJoined: initialJoined,
+      participantsCompleted: initialCompleted,
+      voteCounts: { ...initialVoteCounts },
+    });
   };
 
   const beginVoting = () => {
     resetSession();
-    setPhase("live");
+    updateVotingSession({ phase: "live" });
   };
 
   const closeVoting = () => {
-    setPhase("results");
+    updateVotingSession({ phase: "results" });
   };
 
   const triggerRevote = () => {
     resetSession();
-    setPhase("configure");
+    updateVotingSession({ phase: "configure" });
   };
 
   return (
@@ -94,7 +102,7 @@ export default function VotingSlide() {
           ].map((step) => (
             <button
               key={step.id}
-              onClick={() => setPhase(step.id)}
+              onClick={() => updateVotingSession({ phase: step.id })}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${phase === step.id ? "bg-[var(--presentation-surface)] shadow-sm text-[var(--presentation-text)]" : "text-[var(--presentation-text-muted)] hover:text-[var(--presentation-text)]"}`}
             >
               {step.label}
@@ -122,7 +130,7 @@ export default function VotingSlide() {
                   <label className={`text-base font-medium ${ui.textMuted}`}>Question</label>
                   <textarea
                     value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
+                    onChange={(e) => updateVotingSession({ question: e.target.value })}
                     rows={4}
                     className={`w-full resize-none rounded-xl px-4 py-3 text-base ${ui.control} ${ui.focusRing}`}
                   />
@@ -132,14 +140,22 @@ export default function VotingSlide() {
                   <p className={`text-base font-medium ${ui.textMuted}`}>Votes per person</p>
                   <div className="flex items-center justify-between">
                     <button
-                      onClick={() => setVotesPerPerson((v) => clamp(v - 1, 1, 10))}
+                      onClick={() =>
+                        updateVotingSession({
+                          votesPerPerson: clamp(votesPerPerson - 1, 1, 10),
+                        })
+                      }
                       className={`h-9 w-9 rounded-lg ${ui.control} ${ui.controlHover} ${ui.focusRing}`}
                     >
                       -
                     </button>
                     <span className={`text-xl font-semibold ${ui.text}`}>{votesPerPerson}</span>
                     <button
-                      onClick={() => setVotesPerPerson((v) => clamp(v + 1, 1, 10))}
+                      onClick={() =>
+                        updateVotingSession({
+                          votesPerPerson: clamp(votesPerPerson + 1, 1, 10),
+                        })
+                      }
                       className={`h-9 w-9 rounded-lg ${ui.control} ${ui.controlHover} ${ui.focusRing}`}
                     >
                       +

@@ -230,5 +230,77 @@ export const presentationData = {
         },
       ],
     },
+    {
+      id: "t4",
+      title: "Leadership Visibility",
+      description:
+        "Teams want more regular access to leadership context, clearer decision ownership, and visible follow-through on commitments.",
+      count: 24,
+      percentage: 19,
+      color: "peach",
+      subthemes: ["Decision Ownership", "Leadership Access", "Follow-through"],
+      quotes: [
+        {
+          id: 401,
+          text: "I want to hear more directly from leadership when priorities change.",
+        },
+        {
+          id: 402,
+          text: "We need clearer accountability for who owns the final call.",
+        },
+        {
+          id: 403,
+          text: "Visibility matters more than perfection when change is happening quickly.",
+        },
+      ],
+    },
+    {
+      id: "t5",
+      title: "Learning Velocity",
+      description:
+        "People are asking for faster feedback loops, more experimentation, and clearer ways to learn from what is working.",
+      count: 18,
+      percentage: 15,
+      color: "butter",
+      subthemes: ["Experimentation", "Feedback Loops", "Shared Learning"],
+      quotes: [
+        {
+          id: 501,
+          text: "We need to know faster whether something is working or not.",
+        },
+        {
+          id: 502,
+          text: "Small experiments would help us learn without overcommitting.",
+        },
+        {
+          id: 503,
+          text: "Good insights are getting lost because we do not close the loop visibly.",
+        },
+      ],
+    },
+    {
+      id: "t6",
+      title: "Manager Enablement",
+      description:
+        "Managers need more support, clearer operating rituals, and better tools to translate strategy into weekly execution.",
+      count: 15,
+      percentage: 12,
+      color: "blush",
+      subthemes: ["Team Rituals", "Manager Tooling", "Execution Coaching"],
+      quotes: [
+        {
+          id: 601,
+          text: "Managers are doing translation work that should be easier and more consistent.",
+        },
+        {
+          id: 602,
+          text: "Better operating rhythms would reduce confusion for teams.",
+        },
+        {
+          id: 603,
+          text: "The strategy makes sense, but frontline execution support is thin.",
+        },
+      ],
+    },
   ],
 };

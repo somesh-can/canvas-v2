@@ -30,7 +30,7 @@ export default function ResultsActionSlide({ onDownloadReport }) {
         </div>
 
         <div className="space-y-2">
-          <h3 className={`text-2xl font-semibold ${ui.text}`}>Top 3 themes</h3>
+          <h3 className={`text-2xl font-semibold ${ui.text}`}>Top themes</h3>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-5">

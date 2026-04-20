@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { TopBar, BottomBar } from "../components/Shell";
 import OverviewSlide from "../components/slides/OverviewSlide";
 import QuestionsSlide from "../components/slides/QuestionsSlide";
@@ -12,50 +12,141 @@ import { presentationData as initialData } from "../data/mockData";
 import { presentationTheme } from "../lib/presentationTheme";
 import { downloadDetailedReportPdf } from "../lib/reportPdf";
 
+function parseMetricNumber(value, fallback = 124) {
+  const parsed = Number(String(value ?? "").replace(/[^0-9]/g, ""));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function createVotingSession(data) {
+  const respondentCount = parseMetricNumber(
+    data.metrics.find((metric) => metric.label === "Respondents")?.value,
+    124,
+  );
+
+  return {
+    phase: "configure",
+    question: data.voting.question,
+    votesPerPerson: data.voting.votesPerPerson,
+    participantsJoined: respondentCount,
+    participantsCompleted: Math.min(respondentCount, Math.round(respondentCount * 0.56)),
+    voteCounts: Object.fromEntries(data.themes.map((theme) => [theme.id, theme.count])),
+  };
+}
+
 export default function PresentationPage() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlideId, setCurrentSlideId] = useState("overview");
   const [presentationData, setPresentationData] = useState(initialData);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [votingEnabled, setVotingEnabled] = useState(false);
+  const [votingSession, setVotingSession] = useState(() => createVotingSession(initialData));
+  const [showDeleteVotingResultsConfirm, setShowDeleteVotingResultsConfirm] = useState(false);
 
   const handleDownloadReport = () => {
     downloadDetailedReportPdf(presentationData);
   };
 
-  const slides = [
-    { id: 0, title: "Overview", component: <OverviewSlide /> },
-    { id: 1, title: "Questions", component: <QuestionsSlide /> },
-    { id: 2, title: "Quotes", component: <QuotesSlide /> },
-    { id: 3, title: "Themes", component: <ThemesSlide /> },
-    { id: 4, title: "Theme Details", component: <ThemeDetailsSlide /> },
-    { id: 5, title: "Voting", component: <VotingSlide /> },
-    { id: 6, title: "Results Snapshot", component: <ResultsSnapshotSlide /> },
-    {
-      id: 7,
-      title: "Insight To Action",
-      component: <ResultsActionSlide onDownloadReport={handleDownloadReport} />,
-    },
-  ];
+  const slides = useMemo(() => {
+    const baseSlides = [
+      { id: "overview", title: "Overview", component: <OverviewSlide /> },
+      { id: "questions", title: "Questions", component: <QuestionsSlide /> },
+      { id: "quotes", title: "Quotes", component: <QuotesSlide /> },
+      { id: "themes", title: "Themes", component: <ThemesSlide /> },
+      { id: "theme-details", title: "Theme Details", component: <ThemeDetailsSlide /> },
+    ];
+
+    if (votingEnabled) {
+      baseSlides.push({
+        id: "voting",
+        title: "Voting",
+        component: (
+          <VotingSlide
+            presentationData={presentationData}
+            votingSession={votingSession}
+            onVotingSessionChange={setVotingSession}
+          />
+        ),
+      });
+    }
+
+    baseSlides.push(
+      {
+        id: "results-snapshot",
+        title: "Results Snapshot",
+        component: (
+          <ResultsSnapshotSlide
+            presentationData={presentationData}
+            votingSession={votingSession}
+          />
+        ),
+      },
+      {
+        id: "insight-to-action",
+        title: "Insight To Action",
+        component: <ResultsActionSlide onDownloadReport={handleDownloadReport} />,
+      },
+    );
+
+    return baseSlides;
+  }, [handleDownloadReport, presentationData, votingEnabled, votingSession]);
 
   const totalSlides = slides.length;
+  const currentSlideIndex = slides.findIndex((slide) => slide.id === currentSlideId);
+  const safeCurrentSlideIndex = currentSlideIndex >= 0 ? currentSlideIndex : 0;
+  const activeSlide = slides[safeCurrentSlideIndex];
 
   const handleNext = () => {
-    if (currentSlide < totalSlides - 1) {
-      setCurrentSlide((prev) => prev + 1);
+    if (safeCurrentSlideIndex < totalSlides - 1) {
+      setCurrentSlideId(slides[safeCurrentSlideIndex + 1].id);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handlePrev = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide((prev) => prev - 1);
+    if (safeCurrentSlideIndex > 0) {
+      setCurrentSlideId(slides[safeCurrentSlideIndex - 1].id);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  const handleJump = (index) => {
-    setCurrentSlide(index);
+  const handleJump = (slideId) => {
+    setCurrentSlideId(slideId);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const disableVoting = () => {
+    setVotingSession(createVotingSession(presentationData));
+
+    if (currentSlideId === "voting") {
+      setCurrentSlideId("results-snapshot");
+    }
+
+    setVotingEnabled(false);
+  };
+
+  const handleToggleVoting = () => {
+    if (votingEnabled) {
+      if (votingSession.phase === "results") {
+        setShowDeleteVotingResultsConfirm(true);
+        return;
+      }
+
+      disableVoting();
+      return;
+    }
+
+    setVotingEnabled(true);
+    setCurrentSlideId("voting");
+  };
+
+  React.useEffect(() => {
+    if (!slides.some((slide) => slide.id === currentSlideId)) {
+      setCurrentSlideId(slides[0]?.id ?? "overview");
+    }
+  }, [currentSlideId, slides]);
+
+  React.useEffect(() => {
+    setVotingSession(createVotingSession(presentationData));
+  }, [presentationData]);
 
   // Track fullscreen changes
   React.useEffect(() => {
@@ -80,8 +171,11 @@ export default function PresentationPage() {
       const isQuoteOverlayOpen = Boolean(
         document.querySelector('[data-quote-overlay="true"]'),
       );
+      const isVotingDeleteConfirmOpen = Boolean(
+        document.querySelector('[data-voting-delete-confirm="true"]'),
+      );
 
-      if (isTypingField || isQuoteOverlayOpen) {
+      if (isTypingField || isQuoteOverlayOpen || isVotingDeleteConfirmOpen) {
         return;
       }
 
@@ -96,7 +190,7 @@ export default function PresentationPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentSlide]);
+  }, [handleNext, handlePrev]);
 
   return (
     <div
@@ -165,16 +259,64 @@ export default function PresentationPage() {
       )}
 
       <main className="min-h-[calc(100vh-9rem)] animate-fade-in">
-        {slides[currentSlide].component}
+        {activeSlide?.component}
       </main>
 
+      {showDeleteVotingResultsConfirm && (
+        <div
+          data-voting-delete-confirm="true"
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[var(--presentation-overlay)] backdrop-blur-xl"
+          onClick={() => setShowDeleteVotingResultsConfirm(false)}
+        >
+          <div
+            className={`${presentationTheme.classes.panelStrong} w-full max-w-xl rounded-[32px] p-8 shadow-[0_24px_80px_rgba(31,41,55,0.18)]`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="space-y-3">
+              <h3 className={`text-2xl font-semibold ${presentationTheme.classes.text}`}>
+                Delete voting results?
+              </h3>
+              <p className={`text-base leading-relaxed ${presentationTheme.classes.textMuted}`}>
+                Are you sure to delete the voting results?
+              </p>
+            </div>
+
+            <div className="mt-8 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteVotingResultsConfirm(false)}
+                className={`h-11 px-5 rounded-xl ${presentationTheme.classes.control} ${presentationTheme.classes.controlHover} ${presentationTheme.classes.focusRing} text-sm font-medium ${presentationTheme.classes.text}`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  disableVoting();
+                  setShowDeleteVotingResultsConfirm(false);
+                }}
+                className={`h-11 px-5 rounded-xl bg-[var(--presentation-text)] text-white text-sm font-semibold hover:opacity-90 transition-opacity ${presentationTheme.classes.focusRing}`}
+              >
+                Delete results
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <BottomBar
-        currentSlide={currentSlide}
+        currentSlide={safeCurrentSlideIndex}
+        currentSlideId={activeSlide?.id}
         totalSlides={totalSlides}
+        slides={slides}
         onPrev={handlePrev}
         onNext={handleNext}
         onJump={handleJump}
-        slideTitle={slides[currentSlide].title}
+        slideTitle={activeSlide?.title}
+        votingEnabled={votingEnabled}
+        onToggleVoting={handleToggleVoting}
       />
     </div>
   );
