@@ -1,57 +1,198 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Link as LinkIcon,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   Check,
   Maximize,
-  FileDown,
+  Copy,
+  Share2,
+  X,
 } from "lucide-react";
 import { presentationTheme } from "../lib/presentationTheme";
 
 const ui = presentationTheme.classes;
 
-export const TopBar = ({ title, onDownloadReport }) => {
-  const [copied, setCopied] = useState(false);
+export const TopBar = ({
+  title,
+  activeView,
+  onViewChange,
+  canvasLink,
+  reportLink,
+}) => {
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [shareView, setShareView] = useState(activeView === "report" ? "report" : "canvas");
+  const [copiedTarget, setCopiedTarget] = useState(null);
+  const modalRef = useRef(null);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  useEffect(() => {
+    if (!isShareOpen) {
+      setShareView(activeView === "report" ? "report" : "canvas");
+      setCopiedTarget(null);
+    }
+  }, [activeView, isShareOpen]);
+
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsShareOpen(false);
+      }
+    };
+
+    if (isShareOpen) {
+      window.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isShareOpen]);
+
+  const activeShareLink = shareView === "report" ? reportLink : canvasLink;
+  const activeShareLabel = shareView === "report" ? "Report link" : "Canvas link";
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(activeShareLink);
+      setCopiedTarget(shareView);
+      setTimeout(() => setCopiedTarget(null), 2000);
+    } catch {
+      setCopiedTarget(null);
+    }
   };
 
   return (
-    <div
-      className={`fixed top-0 left-0 right-0 h-16 bg-[color:rgb(255_255_255_/_0.86)] backdrop-blur-md ${ui.border} border-b px-8 flex items-center justify-between z-50`}
-    >
-      <div className="flex items-center gap-4">
-        <h1 className={`text-sm font-medium ${ui.text}`}>{title}</h1>
+    <>
+      <div
+        className={`fixed top-0 left-0 right-0 h-16 bg-[color:rgb(255_255_255_/_0.86)] backdrop-blur-md ${ui.border} border-b px-8 flex items-center justify-between z-50`}
+      >
+        <div className="flex items-center gap-4">
+          <h1 className={`text-sm font-medium ${ui.text}`}>{title}</h1>
+        </div>
+
+        <div
+          className={`absolute left-1/2 -translate-x-1/2 h-10 p-1 rounded-full border ${ui.borderStrong} bg-[var(--presentation-surface)] flex items-center shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]`}
+          role="tablist"
+          aria-label="Presentation view selector"
+        >
+          {[
+            { id: "canvas", label: "Canvas" },
+            { id: "report", label: "Report" },
+          ].map((option) => {
+            const isActive = activeView === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => onViewChange(option.id)}
+                className={`h-8 px-4 rounded-full text-sm font-medium transition-all ${ui.focusRing} ${
+                  isActive
+                    ? "bg-[var(--presentation-text)] text-white shadow-[0_2px_8px_rgba(17,24,39,0.22)]"
+                    : `${ui.textMuted} hover:text-[var(--presentation-text)]`
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsShareOpen(true)}
+            className={`h-10 px-5 rounded-full flex items-center text-sm font-semibold bg-[var(--presentation-text)] text-white hover:opacity-90 transition-opacity ${ui.focusRing}`}
+          >
+            Share
+          </button>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        {onDownloadReport && (
-          <button
-            onClick={onDownloadReport}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium ${ui.textMuted} hover:bg-[var(--presentation-surface-muted)] rounded-full transition-colors ${ui.focusRing}`}
-          >
-            <FileDown size={16} />
-            Download PDF
-          </button>
-        )}
-        <button
-          onClick={handleCopy}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium ${ui.textMuted} hover:bg-[var(--presentation-surface-muted)] rounded-full transition-colors ${ui.focusRing}`}
+      {isShareOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[120] bg-[var(--presentation-overlay)] backdrop-blur-xl flex items-center justify-center p-6"
+          onClick={() => setIsShareOpen(false)}
         >
-          {copied ? (
-            <Check size={16} className="text-[var(--presentation-success)]" />
-          ) : (
-            <LinkIcon size={16} />
-          )}
-          {copied ? "Link copied" : "Copy link"}
-        </button>
-      </div>
-    </div>
+          <div
+            ref={modalRef}
+            className={`${ui.panelStrong} w-full max-w-xl rounded-[28px] p-6 shadow-[0_28px_80px_rgba(31,41,55,0.2)]`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className={`text-xl font-semibold ${ui.text}`}>Share</h2>
+                <p className={`text-sm ${ui.textMuted} mt-1`}>
+                  Choose what you want to share.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsShareOpen(false)}
+                className={`h-9 w-9 rounded-full border ${ui.border} ${ui.controlHover} ${ui.focusRing} flex items-center justify-center ${ui.textMuted}`}
+                aria-label="Close share modal"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div
+              className={`mt-6 h-11 p-1 rounded-full border ${ui.borderStrong} bg-[var(--presentation-surface-elevated)] flex items-center`}
+              role="tablist"
+              aria-label="Share type selector"
+            >
+              {[
+                { id: "canvas", label: "Canvas" },
+                { id: "report", label: "Report" },
+              ].map((option) => {
+                const isActive = shareView === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setShareView(option.id)}
+                    className={`h-9 flex-1 rounded-full text-sm font-medium transition-all ${ui.focusRing} ${
+                      isActive
+                        ? "bg-[var(--presentation-text)] text-white"
+                        : `${ui.textMuted} hover:text-[var(--presentation-text)]`
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-5">
+              <label className={`block text-sm font-medium ${ui.text} mb-2`}>
+                {activeShareLabel}
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={activeShareLink}
+                  className={`h-11 flex-1 rounded-xl px-3 text-sm ${ui.text} bg-[var(--presentation-surface-elevated)] border ${ui.border} focus:outline-none`}
+                />
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className={`h-11 px-4 rounded-xl border ${ui.border} ${ui.controlHover} ${ui.focusRing} flex items-center gap-2 text-sm font-medium ${ui.text}`}
+                >
+                  {copiedTarget === shareView ? <Check size={16} /> : <Copy size={16} />}
+                  {copiedTarget === shareView ? "Copied" : "Copy"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

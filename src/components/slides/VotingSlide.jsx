@@ -88,7 +88,7 @@ export default function VotingSlide({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10">
         <div className="space-y-2">
           <h2 className={`text-3xl font-semibold tracking-tight ${ui.text}`}>
-            Voting
+            Prioritization
           </h2>
         </div>
 
@@ -97,7 +97,7 @@ export default function VotingSlide({
         >
           {[
             { id: "configure", label: "Configure" },
-            { id: "live", label: "Live Voting" },
+            { id: "live", label: "Live Prioritization" },
             { id: "results", label: "Results" },
           ].map((step) => (
             <button
@@ -167,7 +167,7 @@ export default function VotingSlide({
                   onClick={beginVoting}
                   className={`w-full h-11 rounded-xl bg-[var(--presentation-text)] text-white text-sm font-semibold hover:opacity-90 transition-opacity ${ui.focusRing}`}
                 >
-                  Start Voting
+                  Start Prioritization
                 </button>
               </>
             ) : (
@@ -221,7 +221,7 @@ export default function VotingSlide({
                   onClick={closeVoting}
                   className={`w-full h-11 rounded-xl bg-[var(--presentation-text)] text-white text-sm font-semibold hover:opacity-90 transition-opacity ${ui.focusRing}`}
                 >
-                  Close Voting
+                  Close Prioritization
                 </button>
               </>
             )}
@@ -241,7 +241,7 @@ export default function VotingSlide({
                 <div className="space-y-4 pb-4">
                   <div className="flex items-center gap-2">
                     <Eye size={16} className={ui.textMuted} />
-                    <p className={`text-2xl font-semibold ${ui.text}`}>Live voting</p>
+                    <p className={`text-2xl font-semibold ${ui.text}`}>Live prioritization</p>
                     <span className="relative ml-1 inline-flex h-2.5 w-2.5">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500/80" />
                       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -309,7 +309,7 @@ export default function VotingSlide({
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                   <BarChart3 size={16} className={ui.textMuted} />
-                  <h3 className={`text-2xl font-semibold ${ui.text}`}>Voting analysis</h3>
+                  <h3 className={`text-2xl font-semibold ${ui.text}`}>Prioritization analysis</h3>
                 </div>
                 <button
                   onClick={triggerRevote}
@@ -329,7 +329,7 @@ export default function VotingSlide({
               <h3 className={`text-[1.9rem] font-medium leading-tight ${ui.text}`}>{question}</h3>
 
               <div className="space-y-4">
-                <p className={`text-base font-semibold ${ui.text}`}>Voting priority</p>
+                <p className={`text-base font-semibold ${ui.text}`}>Prioritization ranking</p>
                 {rankedThemes.map((theme, index) => (
                   <div
                     key={theme.id}
@@ -357,7 +357,7 @@ export default function VotingSlide({
                 <p className={`text-base font-semibold ${ui.text}`}>Key takeaways</p>
                 <ul className={`space-y-2 text-base leading-relaxed ${ui.textMuted}`}>
                   <li>{topTheme?.title} currently leads with {topTheme?.percentage}% support.</li>
-                  <li>{participantsCompleted} participants completed voting with {totalVotesCast} total votes cast.</li>
+                  <li>{participantsCompleted} participants completed prioritization with {totalVotesCast} total votes cast.</li>
                   <li>{topTheme?.subthemes?.[0]} is the strongest recurring signal across responses.</li>
                 </ul>
               </div>

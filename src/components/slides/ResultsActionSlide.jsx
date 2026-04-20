@@ -1,7 +1,4 @@
 import React from "react";
-import {
-  Sparkles,
-} from "lucide-react";
 
 import { presentationData } from "../../data/mockData";
 import { presentationTheme } from "../../lib/presentationTheme";
@@ -18,7 +15,6 @@ export default function ResultsActionSlide({ onDownloadReport }) {
     percentage: theme.percentage,
     count: theme.count,
   }));
-  const footerTakeaways = summary.takeaways.slice(3);
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-16 animate-in fade-in duration-500">
@@ -64,15 +60,6 @@ export default function ResultsActionSlide({ onDownloadReport }) {
               </div>
             </div>
           ))}
-        </div>
-
-        <div className={`${ui.mutedPanel} rounded-[24px] p-6`}>
-          <div className="flex items-center gap-2">
-            <Sparkles size={15} className={ui.textSoft} />
-          </div>
-          <p className={`mt-2 text-xl font-semibold leading-relaxed ${ui.text}`}>
-            {footerTakeaways.join(" ")}
-          </p>
         </div>
       </section>
     </div>
