@@ -76,7 +76,7 @@ export default function ThemeDetailsSlide() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
         <div className="space-y-2">
           <h2 className={`text-3xl font-semibold ${ui.text} tracking-tight`}>
-            Everything you said in {themes.length} areas
+            Everything you said in {themes.length} themes
           </h2>
         </div>
 

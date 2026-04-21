@@ -36,19 +36,32 @@ export function getRankedVotingThemes(data, voteCounts = {}) {
 export function getExecutiveSummary(data) {
   const rankedThemes = getRankedThemes(data);
   const topThemes = rankedThemes.slice(0, 3);
+  const respondentCount = getRespondentCount(data);
+  const messageCount = parseMetricNumber(
+    data.metrics.find((metric) => metric.label === "Messages sent")?.value,
+    data.quotes.length,
+  );
+  const leadTheme = topThemes[0];
+  const secondTheme = topThemes[1];
+  const thirdTheme = topThemes[2];
 
   return {
-    title: "Top themes",
+    title: "What the canvas is telling us",
     topThemes,
+    headline: leadTheme
+      ? `${respondentCount} respondents surfaced a clear signal: ${leadTheme.title.toLowerCase()} is leading the conversation, with ${secondTheme?.title.toLowerCase() ?? "execution discipline"} and ${thirdTheme?.title.toLowerCase() ?? "cross-team coordination"} shaping the rest of the canvas.`
+      : `${respondentCount} respondents surfaced a concentrated set of themes across the canvas.`,
     takeaways: [
-      "People want clearer strategic reasoning behind key decisions.",
-      "Focus and prioritization are the main execution gap.",
-      "Cross-team collaboration is a strength, but systems lag behind it.",
-      "Teams respond well to shared direction when it is explicit and repeated.",
-      "Operational friction shows up less as resistance and more as overload.",
+      leadTheme
+        ? `${leadTheme.title} is the strongest signal at ${leadTheme.percentage}% of coded responses, pointing to a need for ${leadTheme.subthemes.slice(0, 2).join(" and ").toLowerCase()}.`
+        : "The canvas points to a concentrated set of recurring strategic concerns.",
+      secondTheme
+        ? `${secondTheme.title} follows closely, suggesting the main gap is not motivation but turning strategy into a smaller set of visible priorities.`
+        : "Execution signals point to a need for clearer prioritization.",
+      thirdTheme
+        ? `${thirdTheme.title} remains a positive asset, but the volume of comments suggests teams need better operating support to make that strength reliable at scale.`
+        : `Across ${messageCount} messages, the discussion consistently links direction with day-to-day operating friction.`,
     ],
-    recommendation:
-      "Recommended first move: align on one strategic narrative and cascade it into team priorities.",
   };
 }
 

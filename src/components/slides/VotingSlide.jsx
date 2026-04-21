@@ -4,14 +4,15 @@ import {
   CheckCircle2,
   Circle,
   Eye,
+  ExternalLink,
   QrCode,
-  RotateCcw,
   SlidersHorizontal,
   Users,
 } from "lucide-react";
 import { presentationTheme } from "../../lib/presentationTheme";
 
 const ui = presentationTheme.classes;
+const RESULT_BAR_BASE_PERCENT = 12;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -26,6 +27,8 @@ export default function VotingSlide({
   presentationData,
   votingSession,
   onVotingSessionChange,
+  participantJoinUrl,
+  onOpenParticipantPreview,
 }) {
   const { goal, themes, metrics, voting } = presentationData;
   const { phase, question, votesPerPerson, participantsJoined, participantsCompleted, voteCounts } =
@@ -51,8 +54,8 @@ export default function VotingSlide({
       .sort((a, b) => b.votes - a.votes || b.count - a.count);
   }, [themes, voteCounts]);
 
-  const totalVotesCast = Object.values(voteCounts).reduce((sum, n) => sum + n, 0);
-  const topTheme = rankedThemes[0];
+  const getResultBarWidth = (percentage) =>
+    `${RESULT_BAR_BASE_PERCENT + ((100 - RESULT_BAR_BASE_PERCENT) * percentage) / 100}%`;
 
   const updateVotingSession = (updates) => {
     onVotingSessionChange((currentState) => ({
@@ -76,11 +79,6 @@ export default function VotingSlide({
 
   const closeVoting = () => {
     updateVotingSession({ phase: "results" });
-  };
-
-  const triggerRevote = () => {
-    resetSession();
-    updateVotingSession({ phase: "configure" });
   };
 
   return (
@@ -178,25 +176,30 @@ export default function VotingSlide({
                 </div>
 
                 <div className={`${ui.mutedPanel} rounded-xl p-4 space-y-4`}>
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-3">
                     <div className="space-y-1">
                       <p className={`text-sm font-medium ${ui.textMuted}`}>Join url</p>
-                      <p className={`text-base md:text-lg font-medium ${ui.text}`}>cd.ai/join</p>
+                      <p className={`text-base md:text-lg font-medium ${ui.text}`}>
+                        {participantJoinUrl}
+                      </p>
                     </div>
                     <button
                       type="button"
+                      onClick={onOpenParticipantPreview}
+                      className={`w-full h-12 rounded-2xl border ${ui.border} ${ui.controlHover} ${ui.focusRing} flex items-center justify-center gap-3 text-sm font-semibold ${ui.text}`}
+                    >
+                      <ExternalLink size={16} />
+                      Open participant preview
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setIsQrOverlayOpen(true)}
-                      className={`h-9 w-9 rounded-lg ${ui.control} ${ui.controlHover} ${ui.focusRing} flex items-center justify-center`}
+                      className={`w-full h-14 rounded-2xl ${ui.control} ${ui.controlHover} ${ui.focusRing} flex items-center justify-center gap-3 text-base font-semibold ${ui.text}`}
                       aria-label="Show QR code"
                     >
-                      <QrCode size={16} className={ui.textMuted} />
+                      <QrCode size={18} />
+                      Show QR
                     </button>
-                  </div>
-                  <div>
-                    <p className={`text-sm font-medium ${ui.textMuted}`}>Join code</p>
-                    <p className={`text-[2rem] font-semibold tracking-normal ${ui.text}`}>
-                      {voting.joinCode}
-                    </p>
                   </div>
                 </div>
 
@@ -284,7 +287,7 @@ export default function VotingSlide({
                       )}
                       <div>
                         <p className={`text-lg font-medium ${ui.text}`}>
-                          {String.fromCharCode(65 + index)}. {theme.title}
+                          {theme.title}
                         </p>
                       </div>
                     </div>
@@ -306,18 +309,9 @@ export default function VotingSlide({
         <div>
           <section className={`${ui.panelStrong} rounded-[28px] p-8 space-y-6`}>
             <div className="space-y-4 pb-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <BarChart3 size={16} className={ui.textMuted} />
-                  <h3 className={`text-2xl font-semibold ${ui.text}`}>Prioritization analysis</h3>
-                </div>
-                <button
-                  onClick={triggerRevote}
-                  className={`h-11 px-5 rounded-xl bg-[var(--presentation-text)] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity ${ui.focusRing}`}
-                >
-                  <RotateCcw size={14} />
-                  Trigger Revote
-                </button>
+              <div className="flex items-center gap-2">
+                <BarChart3 size={16} className={ui.textMuted} />
+                <h3 className={`text-2xl font-semibold ${ui.text}`}>Prioritization analysis</h3>
               </div>
               <div className={`border-t ${ui.border}`} />
             </div>
@@ -333,33 +327,41 @@ export default function VotingSlide({
                 {rankedThemes.map((theme, index) => (
                   <div
                     key={theme.id}
-                    className="rounded-2xl p-4 border border-[var(--presentation-border)] bg-[linear-gradient(90deg,#f0eff7_0%,#f6f7fb_100%)]"
+                    className="rounded-2xl p-3 border border-[var(--presentation-border)] bg-white/75"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3">
-                        <span
-                          className={`h-7 w-7 rounded-full ${ui.surfaceElevated} ${ui.border} border flex items-center justify-center text-sm font-semibold ${ui.textMuted}`}
-                          aria-hidden="true"
-                        >
-                          {index + 1}
-                        </span>
-                        <p className={`text-lg font-medium ${ui.text}`}>{theme.title}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="relative rounded-2xl bg-white/70 overflow-hidden">
+                          <div
+                            className="absolute inset-y-1 left-1 rounded-[18px] bg-[linear-gradient(90deg,#d9ccff_0%,#ece2ff_52%,#f7f1ff_100%)] shadow-[0_2px_8px_rgba(124,58,237,0.12)] transition-[width] duration-500 ease-out"
+                            style={{ width: getResultBarWidth(theme.percentage) }}
+                          />
+                          <div className="relative z-10 min-h-[64px] flex items-center px-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span
+                                className={`h-7 w-7 rounded-full ${ui.surfaceElevated} ${ui.border} border flex items-center justify-center text-sm font-semibold ${ui.textMuted} shrink-0`}
+                                aria-hidden="true"
+                              >
+                                {index + 1}
+                              </span>
+                              <p className={`text-lg font-medium ${ui.text} truncate whitespace-nowrap`}>
+                                {theme.title}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <p className={`text-sm font-semibold ${ui.text}`}>
-                        {theme.percentage}% ({theme.votes} votes)
-                      </p>
+                      <div className="w-[132px] text-right shrink-0">
+                        <p className={`text-xl font-semibold leading-none ${ui.text}`}>
+                          {theme.percentage}%
+                        </p>
+                        <p className={`mt-2 text-base font-medium leading-none ${ui.textMuted}`}>
+                          {theme.votes} votes
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              <div className={`${ui.surface} ${ui.border} border rounded-2xl p-6 space-y-3`}>
-                <p className={`text-base font-semibold ${ui.text}`}>Key takeaways</p>
-                <ul className={`space-y-2 text-base leading-relaxed ${ui.textMuted}`}>
-                  <li>{topTheme?.title} currently leads with {topTheme?.percentage}% support.</li>
-                  <li>{participantsCompleted} participants completed prioritization with {totalVotesCast} total votes cast.</li>
-                  <li>{topTheme?.subthemes?.[0]} is the strongest recurring signal across responses.</li>
-                </ul>
               </div>
             </div>
           </section>
@@ -392,9 +394,7 @@ export default function VotingSlide({
             </div>
             <div className={`${ui.mutedPanel} rounded-xl p-4 space-y-2`}>
               <p className={`text-sm font-medium ${ui.textMuted}`}>Join url</p>
-              <p className={`text-lg font-medium ${ui.text}`}>cd.ai/join</p>
-              <p className={`text-sm font-medium ${ui.textMuted}`}>Join code</p>
-              <p className={`text-[2rem] font-semibold ${ui.text}`}>{voting.joinCode}</p>
+              <p className={`text-lg font-medium ${ui.text}`}>{participantJoinUrl}</p>
             </div>
           </div>
         </div>
