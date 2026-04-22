@@ -6,7 +6,11 @@ import {
   Layers3,
   ListChecks,
 } from "lucide-react";
-import { presentationTheme, presentationToneCardClasses } from "../lib/presentationTheme";
+import {
+  presentationSubthemePillClass,
+  presentationTheme,
+  presentationToneCardClasses,
+} from "../lib/presentationTheme";
 
 const ui = presentationTheme.classes;
 const STORAGE_PREFIX = "participant-session:";
@@ -62,7 +66,7 @@ function ThemeTone({ theme }) {
 function SegmentedTabs({ activeTab, onChange }) {
   const tabs = [
     { id: "prioritization", label: "Prioritization", icon: ListChecks },
-    { id: "insights", label: "Insights", icon: Layers3 },
+    { id: "insights", label: "Read Up", icon: Layers3 },
   ];
 
   return (
@@ -155,9 +159,6 @@ function ConfirmationView({ selectedThemes }) {
               className={`rounded-[24px] border p-4 ${ThemeTone({ theme })}`}
             >
               <p className={`text-base font-semibold ${ui.text}`}>{theme.title}</p>
-              <p className={`mt-1 text-sm leading-relaxed ${ui.textMuted}`}>
-                {theme.description}
-              </p>
             </div>
           ))}
         </div>
@@ -223,12 +224,7 @@ function PrioritizationView({
                   >
                     <Check size={14} />
                   </span>
-                  <div className="min-w-0">
-                    <p className={`text-base font-semibold ${ui.text}`}>{theme.title}</p>
-                    <p className={`mt-1 text-sm leading-relaxed ${ui.textMuted}`}>
-                      {theme.description}
-                    </p>
-                  </div>
+                  <p className={`min-w-0 text-base font-semibold ${ui.text}`}>{theme.title}</p>
                 </div>
               </button>
             );
@@ -255,33 +251,25 @@ function InsightsView({ session, activeInsightIndex }) {
 
   return (
     <div className="space-y-5">
-      <section className={`rounded-[28px] border ${ui.borderStrong} bg-[var(--presentation-surface)] p-5 shadow-[0_10px_28px_rgba(31,41,55,0.08)]`}>
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${ui.textSoft}`}>
-              Theme {activeInsightIndex + 1} of {session.themes.length}
-            </p>
-            <h2 className={`mt-2 text-[1.7rem] font-semibold leading-tight ${ui.text}`}>
-              {activeTheme.title}
-            </h2>
-          </div>
-          <div className={`rounded-[20px] px-4 py-3 ${ThemeTone({ theme: activeTheme })}`}>
-            <p className="text-2xl font-semibold">{activeTheme.percentage}%</p>
-            <p className="text-xs font-medium opacity-80">{activeTheme.count} mentions</p>
-          </div>
-        </div>
+      <section className={`rounded-[28px] border ${ui.borderStrong} bg-[var(--presentation-surface)] p-5`}>
+        <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${ui.textSoft}`}>
+          Theme {activeInsightIndex + 1} of {session.themes.length}
+        </p>
+        <h2 className={`mt-2 text-[1.7rem] font-semibold leading-tight ${ui.text}`}>
+          {activeTheme.title}
+        </h2>
         <p className={`mt-4 text-base leading-relaxed ${ui.textMuted}`}>
           {activeTheme.description}
         </p>
       </section>
 
       <section className={`rounded-[28px] border ${ui.borderStrong} bg-[var(--presentation-surface)] p-5`}>
-        <p className={`text-sm font-semibold ${ui.text}`}>Signals</p>
+        <p className={`text-sm font-semibold ${ui.text}`}>Sub-themes</p>
         <div className="mt-4 flex flex-wrap gap-2.5">
           {activeTheme.subthemes.map((subtheme) => (
             <span
               key={subtheme}
-              className={`rounded-full border ${ui.border} bg-[var(--presentation-surface-elevated)] px-3 py-2 text-sm font-medium ${ui.text}`}
+              className={presentationSubthemePillClass}
             >
               {subtheme}
             </span>
@@ -292,10 +280,10 @@ function InsightsView({ session, activeInsightIndex }) {
       <section className={`rounded-[28px] border ${ui.borderStrong} bg-[var(--presentation-surface)] p-5`}>
         <p className={`text-sm font-semibold ${ui.text}`}>What people said</p>
         <div className="mt-4 space-y-3">
-          {activeTheme.quotes.map((quote, index) => (
+          {activeTheme.quotes.map((quote) => (
             <blockquote
               key={quote.id}
-              className={`rounded-[24px] border p-4 ${index % 2 === 0 ? ThemeTone({ theme: activeTheme }) : `bg-[var(--presentation-surface-elevated)] ${ui.border}`}`}
+              className={`rounded-[24px] border p-4 ${ThemeTone({ theme: activeTheme })}`}
             >
               <p className={`text-sm leading-relaxed ${ui.text}`}>“{quote.text}”</p>
             </blockquote>

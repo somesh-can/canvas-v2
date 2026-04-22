@@ -2,6 +2,13 @@ export const presentationData = {
   title: "Interactive Strategy Insights",
   logo: "https://ucarecdn.com/a649594f-cb6f-4484-b5b2-ccb27033143e/-/format/auto/",
   goal: "Align on our strategic direction for 2026 and beyond.",
+  growthLoop: {
+    eyebrow: "Collective Discovery",
+    title: "Your team has a perspective you haven't heard yet.",
+    body:
+      "Collective Discovery helps teams surface sharper signals, broaden participation, and turn perspective into better strategic conversations.",
+    cta: "Start your first session for free",
+  },
   metrics: [
     { label: "Respondents", value: "124" },
     { label: "Themes Identified", value: "6" },

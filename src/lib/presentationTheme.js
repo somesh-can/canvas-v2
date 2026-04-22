@@ -89,6 +89,9 @@ export const presentationToneCardClasses = {
     "bg-[var(--mantine-color-pink-0)] border-[var(--mantine-color-pink-2)] text-[var(--presentation-text)]",
 };
 
+export const presentationSubthemePillClass =
+  "rounded-full border border-[var(--presentation-border)] bg-[var(--presentation-surface-elevated)] px-3 py-2 text-sm font-medium text-[var(--presentation-text)]";
+
 export const presentationPatternColor = {
   lavender: "var(--mantine-color-grape-4)",
   blue: "var(--mantine-color-blue-4)",

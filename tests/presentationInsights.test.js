@@ -11,7 +11,8 @@ const executiveSummary = getExecutiveSummary(presentationData);
 assert.equal(executiveSummary.topThemes.length, 3);
 assert.equal(executiveSummary.topThemes[0].title, "Strategic Clarity");
 assert.match(executiveSummary.takeaways[0], /clearer strategic reasoning/i);
-assert.match(executiveSummary.recommendation, /strategic narrative/i);
+assert.match(executiveSummary.headline, /strongest weight in this canvas/i);
+assert.match(executiveSummary.nextStep, /current canvas/i);
 
 const defaultSnapshot = getResultsSnapshotSummary(presentationData);
 assert.equal(defaultSnapshot.title, "Top themes");

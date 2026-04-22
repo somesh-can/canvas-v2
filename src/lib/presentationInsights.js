@@ -49,19 +49,21 @@ export function getExecutiveSummary(data) {
     title: "What the canvas is telling us",
     topThemes,
     headline: leadTheme
-      ? `${respondentCount} respondents surfaced a clear signal: ${leadTheme.title.toLowerCase()} is leading the conversation, with ${secondTheme?.title.toLowerCase() ?? "execution discipline"} and ${thirdTheme?.title.toLowerCase() ?? "cross-team coordination"} shaping the rest of the canvas.`
+      ? `${respondentCount} respondents surfaced a clear signal: ${leadTheme.title.toLowerCase()} is carrying the strongest weight in this canvas, with ${secondTheme?.title.toLowerCase() ?? "execution discipline"} and ${thirdTheme?.title.toLowerCase() ?? "cross-team coordination"} shaping the next layer of interpretation.`
       : `${respondentCount} respondents surfaced a concentrated set of themes across the canvas.`,
     takeaways: [
       leadTheme
-        ? `${leadTheme.title} is the strongest signal at ${leadTheme.percentage}% of coded responses, pointing to a need for ${leadTheme.subthemes.slice(0, 2).join(" and ").toLowerCase()}.`
+        ? `${leadTheme.title} is the strongest signal at ${leadTheme.percentage}% of coded responses, pointing to a need for clearer strategic reasoning around ${leadTheme.subthemes.slice(0, 2).join(" and ").toLowerCase()}.`
         : "The canvas points to a concentrated set of recurring strategic concerns.",
       secondTheme
-        ? `${secondTheme.title} follows closely, suggesting the main gap is not motivation but turning strategy into a smaller set of visible priorities.`
+        ? `${secondTheme.title} follows closely, suggesting the canvas is not asking for more ambition but for a smaller set of visible priorities that teams can act on.`
         : "Execution signals point to a need for clearer prioritization.",
       thirdTheme
-        ? `${thirdTheme.title} remains a positive asset, but the volume of comments suggests teams need better operating support to make that strength reliable at scale.`
+        ? `${thirdTheme.title} remains a meaningful signal, and the volume of comments suggests it should be explored in follow-up rather than treated as resolved.`
         : `Across ${messageCount} messages, the discussion consistently links direction with day-to-day operating friction.`,
     ],
+    nextStep:
+      "Use these signals as a readout of the current canvas and as input for the next follow-up discussion.",
   };
 }
 

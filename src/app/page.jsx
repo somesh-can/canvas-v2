@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Download } from "lucide-react";
 import { TopBar, BottomBar } from "../components/Shell";
 import ParticipantMobileView from "../components/ParticipantMobileView";
@@ -11,10 +11,10 @@ import VotingSlide from "../components/slides/VotingSlide";
 import ResultsSnapshotSlide from "../components/slides/ResultsSnapshotSlide";
 import ThankYouSlide from "../components/slides/ThankYouSlide";
 import { presentationData as initialData } from "../data/mockData";
-import { presentationTheme } from "../lib/presentationTheme";
+import { presentationSubthemePillClass, presentationTheme } from "../lib/presentationTheme";
 import { downloadDetailedReportPdf } from "../lib/reportPdf";
+import { getReportHero, getReportSections } from "../lib/reportContent";
 import {
-  getExecutiveSummary,
   getRankedThemes,
   getRespondentCount,
 } from "../lib/presentationInsights";
@@ -58,7 +58,7 @@ function SectionPanel({ id, title, eyebrow, children }) {
             </p>
           </div>
         )}
-        <h2 className="font-serif text-4xl font-medium leading-tight text-[var(--presentation-text)] md:text-5xl">
+        <h2 className="text-4xl font-semibold leading-tight text-[var(--presentation-text)] md:text-5xl">
           {title}
         </h2>
         <div className="mt-8">{children}</div>
@@ -138,92 +138,94 @@ function PresentationGlobalStyles() {
 }
 
 function ReportView({ presentationData, onDownloadReport }) {
-  const [activeSection, setActiveSection] = useState("executive-summary");
+  const [activeSection, setActiveSection] = useState("");
 
-  const executiveSummary = useMemo(
-    () => getExecutiveSummary(presentationData),
-    [presentationData],
-  );
+  const reportHero = useMemo(() => getReportHero(presentationData), [presentationData]);
   const rankedThemes = useMemo(() => getRankedThemes(presentationData), [presentationData]);
   const respondentCount = useMemo(
     () => getRespondentCount(presentationData),
     [presentationData],
   );
-  const prioritizedThemes = useMemo(
+  const followUpThemes = useMemo(
     () =>
       rankedThemes.slice(0, 4).map((theme, index) => {
-        const rationaleByRank = [
-          "Largest share of comments and the clearest signal for near-term alignment.",
-          "High-frequency theme that is directly affecting execution speed and focus.",
-          "Strong enabling theme that will amplify progress across the rest of the system.",
-          "Smaller overall volume, but repeated enough to justify active monitoring.",
+        const promptByRank = [
+          "Review this theme first in follow-up sessions to understand where the signal is strongest and where language still feels too broad.",
+          "Use this theme to test where execution is getting stuck and which concrete tradeoffs teams want clarified next.",
+          "Bring this theme back into the room to understand which enabling conditions are helping and where they still break down in practice.",
+          "Keep this theme visible in the next round so recurring signals are captured before they turn into larger operating friction.",
         ];
 
         return {
           ...theme,
-          priorityLabel: `Priority ${index + 1}`,
-          rationale:
-            rationaleByRank[index] ||
-            "Recurring signal worth turning into a tracked priority.",
+          prompt:
+            promptByRank[index] ||
+            "Carry this theme into the next follow-up discussion and test whether the signal continues to repeat.",
         };
       }),
     [rankedThemes],
   );
 
-  const sections = useMemo(
-    () => [
-      { id: "executive-summary", title: "Executive Summary", eyebrow: "Section 01" },
-      { id: "goal-metrics", title: "Research Frame", eyebrow: "Section 02" },
-      { id: "questions", title: "Questions Asked", eyebrow: "Section 03" },
-      { id: "signal-quotes", title: "Selected Quotes", eyebrow: "Section 04" },
-      { id: "theme-analysis", title: "Theme Analysis", eyebrow: "Section 05" },
-      { id: "recommended-actions", title: "Prioritized Themes", eyebrow: "Section 06" },
-    ],
-    [],
-  );
+  const sections = useMemo(() => getReportSections(), []);
 
-  React.useEffect(() => {
-    let rafId = null;
+  useEffect(() => {
+    setActiveSection(sections[0]?.id ?? "");
+
     const sectionElements = sections
       .map((section) => document.getElementById(section.id))
       .filter(Boolean);
 
-    const updateActiveSection = () => {
-      const markerY = window.scrollY + 132;
-      let nextActiveId = sections[0].id;
+    if (!sectionElements.length) {
+      return undefined;
+    }
 
-      for (const element of sectionElements) {
-        const sectionTop = element.offsetTop;
-        if (sectionTop <= markerY) {
-          nextActiveId = element.id;
+    const visibleSections = new Map();
+
+    const updateActiveFromVisible = () => {
+      const candidates = Array.from(visibleSections.values()).sort((a, b) => {
+        if (b.ratio !== a.ratio) {
+          return b.ratio - a.ratio;
         }
-      }
 
-      setActiveSection((current) => (current === nextActiveId ? current : nextActiveId));
-    };
+        if (a.top >= 0 && b.top >= 0) {
+          return a.top - b.top;
+        }
 
-    const onScroll = () => {
-      if (rafId !== null) {
-        return;
-      }
-      rafId = window.requestAnimationFrame(() => {
-        updateActiveSection();
-        rafId = null;
+        return Math.abs(a.top) - Math.abs(b.top);
       });
+
+      if (candidates[0]?.id) {
+        setActiveSection((current) => (current === candidates[0].id ? current : candidates[0].id));
+      }
     };
 
-    updateActiveSection();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    window.addEventListener("hashchange", onScroll);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            visibleSections.set(entry.target.id, {
+              id: entry.target.id,
+              ratio: entry.intersectionRatio,
+              top: entry.boundingClientRect.top,
+            });
+          } else {
+            visibleSections.delete(entry.target.id);
+          }
+        });
+
+        updateActiveFromVisible();
+      },
+      {
+        root: null,
+        rootMargin: "-18% 0px -52% 0px",
+        threshold: [0, 0.15, 0.3, 0.45, 0.6, 0.8],
+      },
+    );
+
+    sectionElements.forEach((element) => observer.observe(element));
 
     return () => {
-      if (rafId !== null) {
-        window.cancelAnimationFrame(rafId);
-      }
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      window.removeEventListener("hashchange", onScroll);
+      observer.disconnect();
     };
   }, [sections]);
 
@@ -239,7 +241,7 @@ function ReportView({ presentationData, onDownloadReport }) {
               className="absolute left-[-20px] top-0 w-1 rounded-full bg-[var(--presentation-text)] transition-all duration-300"
               style={{
                 height: "36px",
-                transform: `translateY(${sections.findIndex((s) => s.id === activeSection) * 36}px)`,
+                transform: `translateY(${Math.max(0, sections.findIndex((s) => s.id === activeSection)) * 36}px)`,
               }}
             />
             <ul className="flex flex-col">
@@ -270,16 +272,15 @@ function ReportView({ presentationData, onDownloadReport }) {
           <p
             className={`mb-6 text-[15px] font-semibold uppercase tracking-widest ${presentationTheme.classes.textSoft}`}
           >
-            Research Narrative
+            {reportHero.eyebrow}
           </p>
-          <h1 className="font-serif text-5xl font-medium leading-[1.05] tracking-tight text-[var(--presentation-text)] md:text-6xl">
-            {presentationData.title}
+          <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight text-[var(--presentation-text)] md:text-6xl">
+            {reportHero.title}
           </h1>
           <p
             className={`mt-8 max-w-3xl text-xl font-light leading-relaxed md:text-2xl ${presentationTheme.classes.textSoft}`}
           >
-            This report translates the canvas into a structured narrative: what people
-            said, which themes dominate, and which priorities deserve attention next.
+            {reportHero.description}
           </p>
 
           <div className="mt-10 flex justify-start">
@@ -292,103 +293,34 @@ function ReportView({ presentationData, onDownloadReport }) {
               Download Report PDF
             </button>
           </div>
-
-          <div className="mt-20 flex max-w-3xl items-center justify-between gap-8 border-t border-[var(--presentation-border)] pt-12 text-left">
-            <div className="flex flex-1 flex-col items-start">
-              <span className="font-serif text-4xl text-[var(--presentation-text)] md:text-5xl">{respondentCount}</span>
-              <span className={`mt-3 text-[15px] font-semibold uppercase tracking-widest ${presentationTheme.classes.textSoft}`}>
-                Respondents
-              </span>
-            </div>
-            <div className="flex flex-1 flex-col items-start">
-              <span className="font-serif text-4xl text-[var(--presentation-text)] md:text-5xl">{presentationData.themes.length}</span>
-              <span className={`mt-3 text-[15px] font-semibold uppercase tracking-widest ${presentationTheme.classes.textSoft}`}>
-                Themes
-              </span>
-            </div>
-            <div className="flex flex-1 flex-col items-start">
-              <span className="font-serif text-4xl text-[var(--presentation-text)] md:text-5xl">{presentationData.quotes.length}</span>
-              <span className={`mt-3 text-[15px] font-semibold uppercase tracking-widest ${presentationTheme.classes.textSoft}`}>
-                Messages
-              </span>
-            </div>
-          </div>
         </header>
 
-        <SectionPanel id="executive-summary" title="Executive Summary" eyebrow="Section 01">
-          <p className="max-w-4xl text-[22px] font-light leading-relaxed text-[var(--presentation-text)] md:text-[28px]">
-            {executiveSummary.headline}
-          </p>
-
-          <div className="mb-16 mt-12 space-y-4">
-            {executiveSummary.takeaways.map((takeaway, i) => (
-              <div key={i} className="flex gap-6 rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface)] px-6 py-5">
-                <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--presentation-border-strong)] text-xs font-semibold text-[var(--presentation-text)]">
-                  {i + 1}
-                </div>
-                <p className="text-lg leading-relaxed text-[var(--presentation-text-muted)]">
-                  {takeaway}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <h3 className="mb-8 font-serif text-2xl font-medium text-[var(--presentation-text)]">
-            Dominant Themes
-          </h3>
-          <div className="flex flex-col gap-5">
-            {executiveSummary.topThemes.map((theme, index) => (
-              <article
-                key={theme.id}
-                className="rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface)] p-6 transition-all hover:border-[var(--presentation-border-strong)] hover:shadow-lg"
-              >
-                <div className="grid gap-5 md:grid-cols-[56px_minmax(0,1fr)_auto] md:items-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--presentation-border-strong)] bg-[var(--presentation-surface-muted)] font-serif text-xl text-[var(--presentation-text)]">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-medium leading-tight text-[var(--presentation-text)]">
-                      {theme.title}
-                    </h4>
-                    <p className={`mt-2 text-sm ${presentationTheme.classes.textSoft}`}>
-                      {theme.count} responses across {theme.subthemes.slice(0, 2).join(" and ")}
-                    </p>
-                  </div>
-                  <span className="inline-flex w-fit rounded-full border border-[var(--presentation-border)] bg-[var(--presentation-bg)] px-3 py-1.5 text-[11px] font-medium text-[var(--presentation-text-soft)]">
-                    {theme.percentage}%
-                  </span>
-                </div>
-              </article>
-            ))}
-          </div>
-        </SectionPanel>
-
-        <SectionPanel id="goal-metrics" title="Research Frame" eyebrow="Section 02">
-          <p className="max-w-4xl text-xl font-light leading-relaxed text-[var(--presentation-text-muted)]">
-            {presentationData.goal}
-          </p>
+        <SectionPanel id="goal-metrics" title="Workshop Setup" eyebrow="Section 01">
           <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {presentationData.metrics.map((metric) => (
-              <article key={metric.label} className="flex flex-col border-t border-[var(--presentation-border)] pt-6">
-                <span className="font-serif text-4xl text-[var(--presentation-text)]">
-                  {metric.value}
-                </span>
-                <span className={`mt-3 text-xs font-semibold uppercase tracking-wider ${presentationTheme.classes.textSoft}`}>
+              <article
+                key={metric.label}
+                className="rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface)] p-6"
+              >
+                <span className={`text-sm font-semibold tracking-[0.08em] ${presentationTheme.classes.textSoft}`}>
                   {metric.label}
+                </span>
+                <span className="mt-3 block text-4xl font-semibold text-[var(--presentation-text)]">
+                  {metric.value}
                 </span>
               </article>
             ))}
           </div>
         </SectionPanel>
 
-        <SectionPanel id="questions" title="Questions Asked" eyebrow="Section 03">
+        <SectionPanel id="questions" title="Questions Asked" eyebrow="Section 02">
           <div className="space-y-8">
             {presentationData.questions.map((question, index) => (
               <div
                 key={question.id}
                 className="group relative flex gap-6 rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface-muted)] p-6 md:p-8"
               >
-                <span className="inline-flex h-14 min-w-14 items-center justify-center rounded-2xl bg-[var(--presentation-text)] px-3 font-serif text-2xl leading-none text-white shadow-sm transition-colors group-hover:bg-[var(--presentation-text)]/90">
+                <span className="inline-flex h-14 min-w-14 items-center justify-center rounded-2xl bg-[var(--presentation-text)] px-3 text-2xl font-semibold leading-none text-white shadow-sm transition-colors group-hover:bg-[var(--presentation-text)]/90">
                   Q{index + 1}
                 </span>
                 <p className="mt-1 text-xl font-medium leading-relaxed text-[var(--presentation-text)] md:text-[22px]">
@@ -399,22 +331,25 @@ function ReportView({ presentationData, onDownloadReport }) {
           </div>
         </SectionPanel>
 
-        <SectionPanel id="signal-quotes" title="Selected Quotes" eyebrow="Section 04">
+        <SectionPanel id="signal-quotes" title="Some Quotes From the Workshop" eyebrow="Section 03">
           <div className="grid gap-6 md:grid-cols-2">
             {presentationData.quotes.slice(0, 10).map((quote) => (
-              <article key={quote.id} className="rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface)] p-6 md:p-7">
-                <span className="mb-4 block font-serif text-4xl leading-none text-[var(--presentation-text-soft)] opacity-50">
-                  "
-                </span>
-                <p className="text-lg font-medium leading-relaxed text-[var(--presentation-text)] md:text-[21px]">
+              <article
+                key={quote.id}
+                className="relative overflow-hidden rounded-[26px] border border-[var(--presentation-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(246,248,251,0.94))] p-6 md:p-7"
+              >
+                <p className="relative z-10 text-lg font-medium leading-relaxed text-[var(--presentation-text)] md:text-[21px]">
                   {quote.text}
                 </p>
+                <div className="pointer-events-none absolute bottom-2 right-5 z-0 text-[92px] font-semibold leading-none text-[var(--presentation-border-strong)] opacity-60">
+                  &rdquo;
+                </div>
               </article>
             ))}
           </div>
         </SectionPanel>
 
-        <SectionPanel id="theme-analysis" title="Theme Analysis" eyebrow="Section 05">
+        <SectionPanel id="theme-analysis" title="Six Themes Identified" eyebrow="Section 04">
           <div className="space-y-16">
             {rankedThemes.map((theme, idx) => (
               <article key={theme.id} className="relative rounded-[28px] border border-[var(--presentation-border)] bg-[var(--presentation-surface)] p-8 md:p-10">
@@ -423,7 +358,7 @@ function ReportView({ presentationData, onDownloadReport }) {
                     <span className={`inline-flex rounded-full bg-[var(--presentation-surface-muted)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${presentationTheme.classes.textSoft}`}>
                       Theme {String(idx + 1).padStart(2, "0")}
                     </span>
-                    <h3 className="font-serif text-3xl font-medium leading-tight text-[var(--presentation-text)] md:text-4xl">
+                    <h3 className="text-3xl font-semibold leading-tight text-[var(--presentation-text)] md:text-4xl">
                       {theme.title}
                     </h3>
                   </div>
@@ -435,12 +370,12 @@ function ReportView({ presentationData, onDownloadReport }) {
 
                 <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
                   <div className="rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface-muted)] p-6">
-                    <p className={`mb-4 text-[10px] font-semibold uppercase tracking-[0.24em] ${presentationTheme.classes.textSoft}`}>
-                      Identified Sub-themes
+                    <p className="mb-5 text-lg font-semibold text-[var(--presentation-text)]">
+                      Sub-themes
                     </p>
                     <div className="flex flex-wrap gap-2.5">
                       {theme.subthemes.map((sub, i) => (
-                        <span key={i} className="rounded-full bg-[var(--presentation-surface)] px-3 py-1.5 text-sm font-medium text-[var(--presentation-text)]">
+                        <span key={i} className={presentationSubthemePillClass}>
                           {sub}
                         </span>
                       ))}
@@ -448,7 +383,7 @@ function ReportView({ presentationData, onDownloadReport }) {
                   </div>
 
                   <div className="rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-bg)] p-6">
-                    <p className={`mb-3 text-[10px] font-semibold uppercase tracking-[0.24em] ${presentationTheme.classes.textSoft}`}>
+                    <p className="mb-4 text-lg font-semibold text-[var(--presentation-text)]">
                       Representative Quotes
                     </p>
                     <div className="space-y-3">
@@ -468,38 +403,29 @@ function ReportView({ presentationData, onDownloadReport }) {
           </div>
         </SectionPanel>
 
-        <SectionPanel id="recommended-actions" title="Prioritized Themes" eyebrow="Section 06">
-          <div className="mb-12 rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface-muted)] p-8 md:p-10">
-            <h3 className="font-serif text-2xl font-medium text-[var(--presentation-text)] md:text-3xl">
-              Suggested priority order
-            </h3>
-            <p className="mt-4 max-w-4xl text-lg leading-relaxed text-[var(--presentation-text-muted)]">
-              This view summarizes a follow-up prioritization session held after the canvas review. In this mock round, 38 people participated and cast 114 total votes, giving a directional read on which themes the group wants to move on first.
-            </p>
-          </div>
-
+        <SectionPanel id="recommended-actions" title="Prioritized Themes" eyebrow="Section 05">
           <div className="space-y-6">
-            {prioritizedThemes.map((theme) => (
+            {followUpThemes.map((theme) => (
               <article key={theme.id} className="overflow-hidden rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface)] p-7 md:p-8">
-                <div className="grid gap-6 md:grid-cols-[160px_minmax(0,1fr)] md:items-start">
-                  <div>
-                    <span className={`text-[10px] font-semibold uppercase tracking-[0.22em] ${presentationTheme.classes.textSoft}`}>
-                      {theme.priorityLabel}
-                    </span>
-                    <p className="mt-3 font-serif text-3xl text-[var(--presentation-text)]">
-                      {theme.percentage}%
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-[var(--presentation-text-soft)]">
-                      {theme.count} votes
-                    </p>
-                  </div>
-
+                <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_180px] md:items-start">
                   <div>
                     <h4 className="text-2xl font-medium text-[var(--presentation-text)]">
                       {theme.title}
                     </h4>
                     <p className="mt-3 text-base leading-relaxed text-[var(--presentation-text-muted)]">
+                      {theme.prompt}
+                    </p>
+                    <p className="mt-4 text-base leading-relaxed text-[var(--presentation-text-muted)]">
                       {theme.description}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-[var(--presentation-border)] bg-[var(--presentation-surface-muted)] px-5 py-5 text-left md:text-right">
+                    <p className="text-3xl font-semibold text-[var(--presentation-text)]">
+                      {theme.percentage}%
+                    </p>
+                    <p className="mt-2 text-sm font-medium text-[var(--presentation-text-soft)]">
+                      {theme.count} of {respondentCount} responses
                     </p>
                   </div>
                 </div>
@@ -507,6 +433,28 @@ function ReportView({ presentationData, onDownloadReport }) {
             ))}
           </div>
         </SectionPanel>
+
+        <section id="growth-loop" className="scroll-mt-32 py-14 md:py-20">
+          <div className="relative overflow-hidden rounded-[32px] border border-[rgba(22,35,58,0.12)] bg-[linear-gradient(135deg,#dbeafe_0%,#f3e8ff_45%,#fff7ed_100%)] p-8 md:p-10">
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-[42%] bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.82),transparent_62%)]" />
+            <div className="pointer-events-none absolute -right-10 top-8 h-40 w-40 rounded-full border border-[rgba(37,99,235,0.18)] bg-[rgba(255,255,255,0.26)]" />
+            <div className="pointer-events-none absolute bottom-[-24px] right-24 h-32 w-32 rounded-full border border-[rgba(249,115,22,0.18)] bg-[rgba(255,255,255,0.18)]" />
+            <div className="relative max-w-3xl">
+              <p className="text-sm font-semibold tracking-[0.08em] text-[rgba(15,23,42,0.62)]">
+                {presentationData.growthLoop.eyebrow}
+              </p>
+              <h3 className="mt-4 text-3xl font-semibold leading-tight text-[var(--presentation-text)] md:text-4xl">
+                {presentationData.growthLoop.title}
+              </h3>
+              <p className="mt-5 text-lg leading-relaxed text-[rgba(15,23,42,0.78)] md:text-xl">
+                {presentationData.growthLoop.body}
+              </p>
+            </div>
+            <div className="mt-8 inline-flex rounded-full border border-[rgba(15,23,42,0.12)] bg-[rgba(255,255,255,0.78)] px-5 py-3 text-sm font-semibold text-[var(--presentation-text)]">
+              {presentationData.growthLoop.cta}
+            </div>
+          </div>
+        </section>
 
         <footer className="mt-24 py-12 text-center">
           <p className="text-sm font-medium text-[var(--presentation-text-soft)]">

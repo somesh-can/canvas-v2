@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { presentationData } from "../../data/mockData";
-import { presentationTheme } from "../../lib/presentationTheme";
+import {
+  presentationSubthemePillClass,
+  presentationTheme,
+} from "../../lib/presentationTheme";
 
 const ui = presentationTheme.classes;
 const colorMap = {
@@ -191,7 +194,7 @@ export default function ThemeDetailsSlide() {
             {selectedTheme.subthemes.map((st, i) => (
               <div
                 key={i}
-                className={`px-5 py-2.5 ${ui.surface} ${ui.borderStrong} border rounded-full text-lg font-medium ${ui.textMuted}`}
+                className={`${presentationSubthemePillClass} text-lg`}
               >
                 {st}
               </div>

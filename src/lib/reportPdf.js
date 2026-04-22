@@ -1,9 +1,5 @@
-import {
-  getActionSummary,
-  getExecutiveSummary,
-  getRankedThemes,
-  getRespondentCount,
-} from "./presentationInsights.js";
+import { getRankedThemes, getRespondentCount } from "./presentationInsights.js";
+import { getReportHero, getReportSections } from "./reportContent.js";
 
 function sanitizePdfText(value) {
   return String(value)
@@ -44,58 +40,48 @@ function wrapText(text, maxChars) {
 }
 
 function buildReportBlocks(data) {
-  const executiveSummary = getExecutiveSummary(data);
-  const actionSummary = getActionSummary(data);
+  const reportHero = getReportHero(data);
+  const reportSections = Object.fromEntries(
+    getReportSections().map((section) => [section.id, section.title]),
+  );
   const rankedThemes = getRankedThemes(data);
   const respondentCount = getRespondentCount(data);
+  const prioritizedThemes = rankedThemes.slice(0, 4);
 
   const blocks = [
-    { text: data.title, font: "bold", size: 24, gapAfter: 10 },
-    { text: "Detailed Insights Report", font: "bold", size: 16, gapAfter: 14 },
-    { text: `Goal: ${data.goal}`, size: 12, gapAfter: 8 },
-    {
-      text: `Respondents: ${respondentCount} | Themes: ${data.themes.length} | Quotes: ${data.quotes.length}`,
-      size: 11,
-      gapAfter: 18,
-    },
-    { text: "Executive Snapshot", font: "bold", size: 16, gapAfter: 10 },
-    { text: executiveSummary.headline, size: 12, gapAfter: 8 },
+    { text: reportHero.eyebrow, font: "bold", size: 12, gapAfter: 8 },
+    { text: reportHero.title, font: "bold", size: 24, gapAfter: 10 },
+    { text: reportHero.description, size: 12, gapAfter: 14 },
+    { text: reportSections["goal-metrics"], font: "bold", size: 16, gapAfter: 10 },
+    { text: `Goal of the workshop: ${data.goal}`, size: 12, gapAfter: 8 },
+    { text: `Respondents: ${respondentCount}`, size: 11, gapAfter: 4 },
+    { text: `Themes identified: ${data.themes.length}`, size: 11, gapAfter: 4 },
+    { text: `Messages captured: ${data.quotes.length}`, size: 11, gapAfter: 16 },
   ];
 
-  executiveSummary.topThemes.forEach((theme, index) => {
-    blocks.push({
-      text: `${index + 1}. ${theme.title} - ${theme.count} responses (${theme.percentage}%)`,
-      size: 11,
-      gapAfter: 6,
-    });
-  });
-
-  executiveSummary.takeaways.forEach((takeaway) => {
-    blocks.push({ text: `- ${takeaway}`, size: 11, gapAfter: 6 });
-  });
-  blocks.push({ text: executiveSummary.recommendation, size: 11, gapAfter: 18 });
-
-  blocks.push({ text: "Questions Asked", font: "bold", size: 16, gapAfter: 10 });
+  blocks.push({ text: reportSections.questions, font: "bold", size: 16, gapAfter: 10 });
   data.questions.forEach((question, index) => {
     blocks.push({ text: `${index + 1}. ${question.text}`, size: 11, gapAfter: 6 });
   });
   blocks.push({ text: "", size: 11, gapAfter: 10 });
 
-  blocks.push({ text: "Insight to Action", font: "bold", size: 16, gapAfter: 10 });
-  actionSummary.rows.forEach((row) => {
-    blocks.push({ text: row.themeTitle, font: "bold", size: 12, gapAfter: 5 });
-    blocks.push({ text: `Signal: ${row.signal}`, size: 11, gapAfter: 4 });
-    blocks.push({ text: `Meaning: ${row.meaning}`, size: 11, gapAfter: 4 });
-    blocks.push({ text: `Action: ${row.action}`, size: 11, gapAfter: 8 });
+  blocks.push({ text: reportSections["signal-quotes"], font: "bold", size: 16, gapAfter: 10 });
+  data.quotes.slice(0, 6).forEach((quote) => {
+    blocks.push({ text: `"${quote.text}"`, size: 11, gapAfter: 6 });
   });
-  blocks.push({ text: actionSummary.recommendation, size: 11, gapAfter: 18 });
+  blocks.push({ text: "", size: 11, gapAfter: 10 });
 
-  blocks.push({ text: "Theme Details", font: "bold", size: 16, gapAfter: 10 });
-  rankedThemes.forEach((theme) => {
+  blocks.push({ text: reportSections["theme-analysis"], font: "bold", size: 16, gapAfter: 10 });
+  rankedThemes.forEach((theme, index) => {
     blocks.push({
-      text: `${theme.title} - ${theme.count} responses (${theme.percentage}%)`,
+      text: `Theme ${String(index + 1).padStart(2, "0")}: ${theme.title}`,
       font: "bold",
       size: 12,
+      gapAfter: 5,
+    });
+    blocks.push({
+      text: `${theme.count} of ${respondentCount} responses (${theme.percentage}%)`,
+      size: 11,
       gapAfter: 5,
     });
     blocks.push({ text: theme.description, size: 11, gapAfter: 5 });
@@ -104,19 +90,27 @@ function buildReportBlocks(data) {
       size: 11,
       gapAfter: 5,
     });
-    theme.quotes.forEach((quote) => {
+    theme.quotes.slice(0, 3).forEach((quote) => {
       blocks.push({ text: `- "${quote.text}"`, size: 10, gapAfter: 4 });
     });
     blocks.push({ text: "", size: 11, gapAfter: 8 });
   });
 
-  blocks.push({ text: "Voting Setup", font: "bold", size: 16, gapAfter: 10 });
-  blocks.push({ text: data.voting.question, size: 11, gapAfter: 6 });
-  blocks.push({
-    text: `Votes per person: ${data.voting.votesPerPerson} | Join code: ${data.voting.joinCode} | Join url: ${data.voting.joinUrl}`,
-    size: 11,
-    gapAfter: 12,
+  blocks.push({ text: reportSections["recommended-actions"], font: "bold", size: 16, gapAfter: 10 });
+  prioritizedThemes.forEach((theme) => {
+    blocks.push({ text: theme.title, font: "bold", size: 12, gapAfter: 5 });
+    blocks.push({
+      text: `${theme.count} of ${respondentCount} responses (${theme.percentage}%)`,
+      size: 11,
+      gapAfter: 4,
+    });
+    blocks.push({ text: theme.description, size: 11, gapAfter: 8 });
   });
+
+  blocks.push({ text: reportSections["growth-loop"], font: "bold", size: 16, gapAfter: 10 });
+  blocks.push({ text: data.growthLoop.title, font: "bold", size: 12, gapAfter: 6 });
+  blocks.push({ text: data.growthLoop.body, size: 11, gapAfter: 6 });
+  blocks.push({ text: data.growthLoop.cta, size: 11, gapAfter: 12 });
 
   return blocks;
 }
