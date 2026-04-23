@@ -9,7 +9,7 @@ assert.doesNotMatch(hero.title, /Canvas Report:/);
 assert.equal(hero.title, "Align on our strategic direction for 2026 and beyond");
 assert.equal(
   hero.description,
-  "This report translates the workshop into a clear summary of the signals, themes, and priorities that emerged.",
+  "This report translates the workshop held on 23.04.2026 into a clear summary of the signals, themes, and priorities that emerged.",
 );
 
 const sections = getReportSections();

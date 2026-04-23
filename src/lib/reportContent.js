@@ -7,12 +7,14 @@ function normalizeGoalToTopic(goal) {
 
 export function getReportHero(data) {
   const topic = String(data.goal ?? "").trim().replace(/\.$/, "") || "the current workshop topic";
+  const workshopDate = String(data.workshopDate ?? "").trim();
+  const datePhrase = workshopDate ? `held on ${workshopDate}` : "held on the workshop date";
 
   return {
     eyebrow: "Collective Discovery report",
     title: topic,
     description:
-      "This report translates the workshop into a clear summary of the signals, themes, and priorities that emerged.",
+      `This report translates the workshop ${datePhrase} into a clear summary of the signals, themes, and priorities that emerged.`,
   };
 }
 

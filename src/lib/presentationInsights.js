@@ -37,8 +37,8 @@ export function getExecutiveSummary(data) {
   const rankedThemes = getRankedThemes(data);
   const topThemes = rankedThemes.slice(0, 3);
   const respondentCount = getRespondentCount(data);
-  const messageCount = parseMetricNumber(
-    data.metrics.find((metric) => metric.label === "Messages sent")?.value,
+  const answerCount = parseMetricNumber(
+    data.metrics.find((metric) => metric.label === "Answers submitted")?.value,
     data.quotes.length,
   );
   const leadTheme = topThemes[0];
@@ -60,7 +60,7 @@ export function getExecutiveSummary(data) {
         : "Execution signals point to a need for clearer prioritization.",
       thirdTheme
         ? `${thirdTheme.title} remains a meaningful signal, and the volume of comments suggests it should be explored in follow-up rather than treated as resolved.`
-        : `Across ${messageCount} messages, the discussion consistently links direction with day-to-day operating friction.`,
+        : `Across ${answerCount} answers, the discussion consistently links direction with day-to-day operating friction.`,
     ],
     nextStep:
       "Use these signals as a readout of the current canvas and as input for the next follow-up discussion.",

@@ -1,6 +1,7 @@
 export const presentationData = {
   title: "Interactive Strategy Insights",
   logo: "https://ucarecdn.com/a649594f-cb6f-4484-b5b2-ccb27033143e/-/format/auto/",
+  workshopDate: "23.04.2026",
   goal: "Align on our strategic direction for 2026 and beyond.",
   growthLoop: {
     eyebrow: "Collective Discovery",
@@ -12,7 +13,7 @@ export const presentationData = {
   metrics: [
     { label: "Respondents", value: "124" },
     { label: "Themes Identified", value: "6" },
-    { label: "Messages sent", value: "482" },
+    { label: "Answers submitted", value: "482" },
   ],
   voting: {
     question:
